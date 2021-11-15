@@ -8,7 +8,9 @@ import common from "../common/common_vue.js";
 const Login = () => import('../views/login/login.vue');
 // 主体页面
 const Home = () => import('../views/home/home.vue');
-console.log(Home)
+
+// 测试
+const Test = () => import('../views/test/test.vue');
 
 const routes: Array<RouteRecordRaw> = [
   {
@@ -21,6 +23,11 @@ const routes: Array<RouteRecordRaw> = [
     name: 'Home',
     component: Home
   },
+  {
+    path: '/test',
+    name: 'Test',
+    component: Test
+  }
 ]
 
 const router = createRouter({

@@ -3,10 +3,14 @@ const indexPage = () => import("../views/index/index.vue");
 // alpIcon图标列表
 const alpIcon = () => import("../views/basic/svgIcon.vue");
 
+// 岗位管理
+const systemPost = () => import("../views/system/post/index.vue");
+
 // 组件模块列表
 const componentMap = {
   index: indexPage,
   alpIcon: alpIcon,
+  post: systemPost,
 }
 
 // 模块图片

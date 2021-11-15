@@ -1,0 +1,490 @@
+<template>
+  <div class="systemPostPage">
+    <div class="topSearch">
+      <alpFormGroup ref="topForm" :options="topForm" :form_data="topFormData">
+        <template #topBtns>
+          <a-button
+            type="primary"
+            @click="topSearch('search')"
+            style="margin-right: 10px"
+          >
+            <template #icon><SearchOutlined /></template>
+            搜索
+          </a-button>
+          <a-button @click="topSearch('reset')">
+            <template #icon><SyncOutlined /></template>
+            重置
+          </a-button>
+        </template>
+      </alpFormGroup>
+    </div>
+    <div class="tableView">
+      <div class="tableTopBtns">
+        <a-button size="small" @click="topSearch('add')">
+          <template #icon><PlusOutlined /></template>
+          新增
+        </a-button>
+        <a-button size="small" @click="topSearch('edit')" :disabled="tableSelection.selectedRowKeys.length!==1">
+          <template #icon><PlusOutlined /></template>
+          修改
+        </a-button>
+        <a-button size="small" @click="topSearch('delete')">
+          <template #icon><PlusOutlined /></template>
+          删除
+        </a-button>
+        <a-button size="small" @click="topSearch('export')" :disabled="tableSelection.selectedRowKeys.length!==1">
+          <template #icon><PlusOutlined /></template>
+          导出
+        </a-button>
+        <a-button size="small" @click="topSearch('refresh')">
+          <template #icon><SyncOutlined /></template>
+          刷新
+        </a-button>
+      </div>
+      <a-table
+        :columns="columns"
+        :data-source="tableData"
+        :row-selection="tableSelection"
+        :pagination="pagination"
+        size="small"
+        rowKey="postId"
+        @change="tablePageChange"
+      >
+        <template #status="{ text: row }">
+          <span class="card" :class="{ err: row.status !== '0' }">{{ row.status == "0" ? "正常" : "停用" }}</span>
+        </template>
+        <template #options="{ text: row }">
+          <div class="rowBtns">
+            <a-button size="small" type="text" @click="itemOptions('edit', row)"><EditOutlined />修改</a-button>
+            <a-button size="small" type="text" @click="itemOptions('delete', row)"><DeleteOutlined />删除</a-button>
+          </div>
+        </template>
+      </a-table>
+    </div>
+
+    <!-- 新增/修改弹窗 -->
+    <a-modal 
+      v-model:visible="rowConfig.show" 
+      :title="rowConfig.type=='add'?'添加岗位':'编辑岗位'" 
+      :width="350"
+      :closable="false">
+      <template #footer>
+        <a-button key="back" @click="submitConfig(false)">取消</a-button>
+        <a-button key="submit" type="primary" :loading="rowConfig.loading" @click="submitConfig(true)">保存</a-button>
+      </template>
+      <div class="popupMain">
+        <alpFormGroup v-if="rowConfig.show" ref="rowForm" :options="tableRowForm" :form_data="tableRowFormData">
+        </alpFormGroup>
+      </div>
+    </a-modal>
+  </div>
+</template>
+<script lang="ts">
+import { defineComponent, createVNode, ref } from "vue";
+import { ExclamationCircleOutlined } from '@ant-design/icons-vue';
+import fromConfig from "./formConfig.js";
+
+export default defineComponent({
+  name: "systemPostPage",
+  data: function () {
+    return {
+      topForm: fromConfig.topForm,
+      topFormData: {},
+      tableSelection: {
+        selectedRowKeys: [],
+        onChange: this.onSelectChange,
+      },
+      pagination: {
+        showTotal: total => `共 ${total} 条`,
+        total: 1,
+        showSizeChanger: true,
+        pageSizeOptions: ['10', '20', '30', '50'],
+        current: 1,
+        pageSize: 10,
+      },
+      tableData: [],
+      columns: [
+        {
+          dataIndex: "postId",
+          key: "postId",
+          title: "岗位编号",
+        },
+        {
+          dataIndex: "postCode",
+          key: "postCode",
+          title: "岗位编码",
+        },
+        {
+          dataIndex: "postName",
+          key: "postName",
+          title: "岗位名称",
+        },
+        {
+          dataIndex: "postSort",
+          key: "postSort",
+          title: "岗位排序",
+        },
+        {
+          width: 100,
+          key: "status",
+          title: "状态",
+          slots: { customRender: "status" },
+        },
+        {
+          dataIndex: "createTime",
+          key: "createTime",
+          title: "创建时间",
+        },
+        {
+          width: 150,
+          title: "操作",
+          key: "options",
+          slots: { customRender: "options" },
+        },
+      ],
+
+      tableRowForm: fromConfig.tableRowForm,
+      tableRowFormData: ref({}),
+      rowConfig: {
+        show: false,
+        type: 'edit', // add/edit
+        data: [],
+      }
+    };
+  },
+  created: function () {
+    this.getList();
+  },
+  methods: {
+    // 获取列表
+    getList: function (params) {
+      var queryParams = {
+        pageNum: this.pagination.current,
+        pageSize: this.pagination.pageSize,
+      }
+      
+      var loading = this.$loading({
+        background: "rgba(0,0,0,0.0)",
+        size: 166,
+        iconColor: "#00678C",
+      });
+      this.$axios
+        .get("/system/post/list", {
+          params: Object.assign(queryParams, params),
+        })
+        .then((res) => {
+          loading.close();
+          if (res.data.code == 200) {
+            this.tableData = res.data.rows;
+            this.pagination.total = res.data.total;
+          } else {
+            this.$message.error(res.data.message);
+          }
+        })
+        .catch((err) => {
+          loading.close();
+        });
+    },
+
+    // 新增/修改/删除/导出 岗位数据
+    setPost: function(type, data){
+      switch(type){
+        case 'add':
+          // 新增
+          return this.$axios.post("/system/post", data);
+        case 'edit':
+          // 修改
+          return this.$axios.put("/system/post", data);
+        case 'delete':
+          //  删除
+          return this.$axios.delete("/system/post/"+data.postId);
+        case 'export':
+          //  导出
+          return this.$axios.get("/system/post/export", {
+            params: data
+          });
+      }
+    },
+
+    // 顶部查询  方法
+    topSearch: function (type) {
+      var form = this.$refs["topForm"];
+      switch (type) {
+        case "search":
+          // 查询
+          var data = form.getFormData().formData;
+          this.getList(data);
+          break;
+        case "reset":
+          // 重置
+          form.resetValidation();
+          this.getList();
+          break;
+        case "add":
+          // 新增
+          this.rowConfig.show = true;
+          this.rowConfig.type = 'add';
+          this.tableRowFormData = {};
+          break;
+        case "edit":
+          // 修改
+          var editData = this.rowConfig.data[0];
+          this.tableRowFormData = {
+            postCode: {
+              value: editData.postCode
+            },
+            postId: {
+              value: editData.postId
+            },
+            postName: {
+              value: editData.postName
+            },
+            postSort: {
+              value: editData.postSort
+            },
+            remark: {
+              value: editData.remark
+            },
+            status: {
+              value: editData.status
+            },
+          };
+          this.rowConfig.type = 'edit';
+          this.rowConfig.show = true;
+          break;
+        case "delete":
+          // 删除
+          var editData = this.rowConfig.data[0];
+          var that = this;
+          this.$confirm({
+            title: () => '删除',
+            icon: () => createVNode(ExclamationCircleOutlined),
+            content: () => '确定要删除吗？',
+            onOk() {
+              return new Promise((resolve) => {
+                // 删除
+                that.setPost('delete', editData).then(res => {
+                  resolve(true)
+                  if(res.data.code == 200){
+                    that.getList();
+                  }else{
+                    that.$message.error(res.data.message);
+                  }
+                }).catch(err => {
+                  that.$message.error('服务器异常');
+                  resolve(false)
+                });
+              });
+            },
+            onCancel() {},
+          });
+
+          break;
+        case "export":
+          // 导出
+
+          break;
+        case "refresh":
+          // 刷新
+          this.getList();
+          break;
+      }
+    },
+
+    // 项目操作
+    itemOptions: function (type, item) {
+      // console.log(type, item)
+      switch (type) {
+        case "edit":
+          // 修改
+          this.tableRowFormData = {
+            postCode: {
+              value: item.postCode
+            },
+            postId: {
+              value: item.postId
+            },
+            postName: {
+              value: item.postName
+            },
+            postSort: {
+              value: item.postSort
+            },
+            remark: {
+              value: item.remark
+            },
+            status: {
+              value: item.status
+            },
+          };
+          this.rowConfig.type = 'edit';
+          this.rowConfig.show = true;
+          break;
+        case "delete":
+          // 删除
+          var that = this;
+          this.$confirm({
+            title: () => '删除',
+            icon: () => createVNode(ExclamationCircleOutlined),
+            content: () => '确定要删除吗？',
+            onOk() {
+              return new Promise((resolve) => {
+                // 删除
+                that.setPost('delete', item).then(res => {
+                  resolve(true)
+                  if(res.data.code == 200){
+                    that.getList();
+                  }else{
+                    that.$message.error(res.data.message);
+                  }
+                }).catch(err => {
+                  that.$message.error('服务器异常');
+                  resolve(false)
+                });
+              });
+            },
+            onCancel() {},
+          });
+          break;
+      }
+    },
+
+    // table行选中事件
+    onSelectChange: function (selectedRowKeys) {
+      // console.log("selectedRowKeys changed: ", selectedRowKeys);
+      var selData = <any>[];
+      this.tableData.forEach(one => {
+        if(selectedRowKeys.indexOf(one.postId)!=-1){
+          selData.push({
+            ...one
+          });
+        }
+      });
+      this.rowConfig.data = selData;
+      this.tableSelection.selectedRowKeys = selectedRowKeys;
+    },
+
+    // table 分页数量变更  
+    tablePageChange: function(page){
+      this.pagination.current = page.current;
+      this.pagination.pageSize = page.pageSize;
+      this.getList();
+    },
+
+    // 表格数据  新增 / 修改 
+    submitConfig: function(state){
+      if(state){
+        var form = this.$refs["rowForm"];
+        // 校验表单数据
+        form.formValidation().then(res => {
+          console.log(res)
+          if(res.state){
+            var queryParams = {
+              postId: undefined,
+              postCode: undefined,
+              postName: undefined,
+              postSort: 0,
+              status: "0",
+              remark: undefined
+            };
+            // 合并表单项内容
+            queryParams = Object.assign(queryParams, res.form);
+            var loading = this.$loading({
+              background: "rgba(0,0,0,0.0)",
+              size: 166,
+              iconColor: "#00678C",
+            });
+            this.setPost(this.rowConfig.type, queryParams).then(requestRes => {
+              loading.close();
+              if(requestRes.data.code == 200){
+                this.$message.success(this.rowConfig.type=='add'?'添加成功':'保存成功');
+                this.rowConfig.show = false;
+                this.getList();
+              }else{
+                this.$message.error(requestRes.data.message);
+              }
+            }).catch(err => {
+              loading.close();
+              this.$message.error('服务器异常');
+            });
+          }
+        });
+      }else{
+        this.rowConfig.show = false;
+      }
+    }
+  },
+});
+</script>
+<style lang="less">
+@import url("../../../common/base.less");
+
+.systemPostPage {
+  padding: 20px;
+  min-height: 100%;
+  background-color: #fff;
+  > .topSearch {
+    margin-bottom: 10px;
+  }
+
+  > .tableView {
+    > .tableTopBtns {
+      margin-bottom: 10px;
+      > .ant-btn {
+        &[disabled]{
+          opacity: 0.5;
+        }
+        &:nth-child(1) {
+          color: #1890ff;
+          background: #e8f4ff;
+          border-color: #a3d3ff;
+        }
+        &:nth-child(2) {
+          color: #13ce66;
+          background: #e7faf0;
+          border-color: #a1ebc2;
+        }
+        &:nth-child(3) {
+          color: #ff4949;
+          background: #ffeded;
+          border-color: #ffb6b6;
+        }
+        &:nth-child(4) {
+          color: #ffba00;
+          background: #fff8e6;
+          border-color: #ffe399;
+        }
+        &:nth-child(5) {
+          color: #0186b7;
+          background: #d1f3ff;
+          border-color: #01aae7;
+        }
+        &:not(:first-child) {
+          margin-left: 10px;
+        }
+      }
+    }
+
+    .card {
+      border-color: #d1e9ff;
+      padding: 0 10px;
+      font-size: 12px;
+      color: #1890ff;
+      border-width: 1px;
+      border-style: solid;
+      border-radius: 4px;
+      white-space: nowrap;
+      &.err{
+        border-color: #ff4949;
+        color: #ff4949;
+      }
+    }
+
+    .rowBtns{
+      .ant-btn-text{
+        color: @activeColor;
+      }
+    }
+  }
+}
+</style>

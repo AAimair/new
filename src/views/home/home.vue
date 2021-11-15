@@ -140,6 +140,7 @@ export default defineComponent({
     (window as any).axios
       .all([this.getUserInfo(), this.getUserJurisdiction()])
       .then((res) => {
+        console.log(res);
         this.parseInterfaceData(res);
 
         if (Array.isArray(this.navData)) {
@@ -345,7 +346,7 @@ export default defineComponent({
       var ids = this.tabModules.map((o) => o.id);
       var targetIdx = ids.indexOf(data.id);
       this.tabModules.splice(targetIdx, 1);
-      if (data == this.activeTabId) {
+      if (data.id == this.activeTabId) {
         this.activeTabId =
           this.tabModules[
             targetIdx < this.tabModules.length - 1 ? targetIdx : targetIdx - 1
