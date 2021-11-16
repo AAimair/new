@@ -25,11 +25,11 @@
           新增
         </a-button>
         <a-button size="small" @click="topSearch('edit')" :disabled="tableSelection.selectedRowKeys.length!==1">
-          <template #icon><PlusOutlined /></template>
+          <template #icon><EditOutlined /></template>
           修改
         </a-button>
-        <a-button size="small" @click="topSearch('delete')">
-          <template #icon><PlusOutlined /></template>
+        <a-button size="small" @click="topSearch('delete')" :disabled="tableSelection.selectedRowKeys.length==0">
+          <template #icon><DeleteOutlined /></template>
           删除
         </a-button>
         <!-- <a-button size="small" @click="topSearch('export')">
@@ -213,7 +213,7 @@ export default defineComponent({
           return this.$axios.put("/system/post", data);
         case 'delete':
           //  删除
-          return this.$axios.delete("/system/post/"+data.postId);
+          return this.$axios.delete("/system/post/"+data);
         case 'export':
           //  导出
           return this.$axios.get("/system/post/export", {
@@ -270,7 +270,7 @@ export default defineComponent({
           break;
         case "delete":
           // 删除
-          var editData = this.rowConfig.data[0];
+          var editData = this.rowConfig.data.map(item => item.postId);
           var that = this;
           this.$confirm({
             title: () => '删除',
@@ -299,10 +299,6 @@ export default defineComponent({
         case "export":
           // 导出
 
-          break;
-        case "refresh":
-          // 刷新
-          this.getList();
           break;
       }
     },
@@ -346,7 +342,7 @@ export default defineComponent({
             onOk() {
               return new Promise((resolve) => {
                 // 删除
-                that.setPost('delete', item).then(res => {
+                that.setPost('delete', item.postId).then(res => {
                   resolve(true)
                   if(res.data.code == 200){
                     that.getList();
