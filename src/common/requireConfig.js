@@ -74,13 +74,13 @@ httpForm.interceptors.request.use(
   }
 );
 http.interceptors.response.use(response => {
-  if(response.data.code == '202'){
+  if(response.data.code == '403'){
     window.location.href = window.location.origin + window.location.pathname + '#/login'
   }
   return response
 });
 httpForm.interceptors.response.use(response => {
-  if(response.data.code == '202'){
+  if(response.data.code == '403'){
     window.location.href = window.location.origin + window.location.pathname + '#/login'
   }
   return response

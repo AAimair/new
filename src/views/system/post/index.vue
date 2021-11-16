@@ -32,34 +32,44 @@
           <template #icon><PlusOutlined /></template>
           删除
         </a-button>
-        <a-button size="small" @click="topSearch('export')" :disabled="tableSelection.selectedRowKeys.length!==1">
+        <!-- <a-button size="small" @click="topSearch('export')">
           <template #icon><PlusOutlined /></template>
           导出
-        </a-button>
-        <a-button size="small" @click="topSearch('refresh')">
-          <template #icon><SyncOutlined /></template>
-          刷新
-        </a-button>
+        </a-button> -->
       </div>
-      <a-table
-        :columns="columns"
-        :data-source="tableData"
-        :row-selection="tableSelection"
-        :pagination="pagination"
-        size="small"
-        rowKey="postId"
-        @change="tablePageChange"
-      >
-        <template #status="{ text: row }">
-          <span class="card" :class="{ err: row.status !== '0' }">{{ row.status == "0" ? "正常" : "停用" }}</span>
-        </template>
-        <template #options="{ text: row }">
-          <div class="rowBtns">
-            <a-button size="small" type="text" @click="itemOptions('edit', row)"><EditOutlined />修改</a-button>
-            <a-button size="small" type="text" @click="itemOptions('delete', row)"><DeleteOutlined />删除</a-button>
-          </div>
-        </template>
-      </a-table>
+      <div class="table" :style="{ height: tableViewHeight+'px' }">
+        <a-table
+          :columns="columns"
+          :data-source="tableData"
+          :row-selection="tableSelection"
+          :pagination="false"
+          size="small"
+          rowKey="postId"
+          :scroll="{ y: tableViewHeight-40 }"
+          bordered
+        >
+          <template #status="{ text: row }">
+            <span class="card" :class="{ err: row.status !== '0' }">{{ row.status == "0" ? "正常" : "停用" }}</span>
+          </template>
+          <template #options="{ text: row }">
+            <div class="rowBtns">
+              <a-button size="small" type="text" @click="itemOptions('edit', row)"><EditOutlined />修改</a-button>
+              <a-button size="small" type="text" @click="itemOptions('delete', row)"><DeleteOutlined />删除</a-button>
+            </div>
+          </template>
+        </a-table>
+      </div>
+      <div class="pagination">
+        <a-pagination size="small" 
+          @change="tablePageChange" 
+          @showSizeChange="tablePageChange" 
+          v-model:current="pagination.current" 
+          v-model:pageSize="pagination.pageSize" 
+          :total="pagination.total" 
+          :pageSizeOptions="pagination.pageSizeOptions" 
+          show-size-changer 
+          :show-total="pagination.showTotal" />
+      </div> 
     </div>
 
     <!-- 新增/修改弹窗 -->
@@ -142,7 +152,7 @@ export default defineComponent({
           slots: { customRender: "options" },
         },
       ],
-
+      tableViewHeight: 200,
       tableRowForm: fromConfig.tableRowForm,
       tableRowFormData: ref({}),
       rowConfig: {
@@ -151,6 +161,10 @@ export default defineComponent({
         data: [],
       }
     };
+  },
+  mounted: function(){
+    var moduleHeight = this.$el.clientHeight;
+    this.tableViewHeight = moduleHeight - 150;
   },
   created: function () {
     this.getList();
@@ -175,10 +189,12 @@ export default defineComponent({
         .then((res) => {
           loading.close();
           if (res.data.code == 200) {
+            // this.tableData = [].concat(res.data.rows, res.data.rows, res.data.rows, res.data.rows);
             this.tableData = res.data.rows;
             this.pagination.total = res.data.total;
+            // this.pagination.total = 50;
           } else {
-            this.$message.error(res.data.message);
+            this.$message.error(res.data.msg);
           }
         })
         .catch((err) => {
@@ -268,7 +284,7 @@ export default defineComponent({
                   if(res.data.code == 200){
                     that.getList();
                   }else{
-                    that.$message.error(res.data.message);
+                    that.$message.error(res.data.msg);
                   }
                 }).catch(err => {
                   that.$message.error('服务器异常');
@@ -335,7 +351,7 @@ export default defineComponent({
                   if(res.data.code == 200){
                     that.getList();
                   }else{
-                    that.$message.error(res.data.message);
+                    that.$message.error(res.data.msg);
                   }
                 }).catch(err => {
                   that.$message.error('服务器异常');
@@ -366,8 +382,6 @@ export default defineComponent({
 
     // table 分页数量变更  
     tablePageChange: function(page){
-      this.pagination.current = page.current;
-      this.pagination.pageSize = page.pageSize;
       this.getList();
     },
 
@@ -377,7 +391,7 @@ export default defineComponent({
         var form = this.$refs["rowForm"];
         // 校验表单数据
         form.formValidation().then(res => {
-          console.log(res)
+          // console.log(res)
           if(res.state){
             var queryParams = {
               postId: undefined,
@@ -401,7 +415,7 @@ export default defineComponent({
                 this.rowConfig.show = false;
                 this.getList();
               }else{
-                this.$message.error(requestRes.data.message);
+                this.$message.error(requestRes.data.msg);
               }
             }).catch(err => {
               loading.close();
@@ -420,45 +434,47 @@ export default defineComponent({
 @import url("../../../common/base.less");
 
 .systemPostPage {
-  padding: 20px;
-  min-height: 100%;
+  padding: 20px 20px;
+  height: 100%;
+  overflow: hidden;
   background-color: #fff;
   > .topSearch {
     margin-bottom: 10px;
   }
 
   > .tableView {
+    height: calc(100% - 42px);
     > .tableTopBtns {
       margin-bottom: 10px;
       > .ant-btn {
         &[disabled]{
           opacity: 0.5;
         }
-        &:nth-child(1) {
-          color: #1890ff;
-          background: #e8f4ff;
-          border-color: #a3d3ff;
-        }
-        &:nth-child(2) {
-          color: #13ce66;
-          background: #e7faf0;
-          border-color: #a1ebc2;
-        }
-        &:nth-child(3) {
-          color: #ff4949;
-          background: #ffeded;
-          border-color: #ffb6b6;
-        }
-        &:nth-child(4) {
-          color: #ffba00;
-          background: #fff8e6;
-          border-color: #ffe399;
-        }
-        &:nth-child(5) {
-          color: #0186b7;
-          background: #d1f3ff;
-          border-color: #01aae7;
-        }
+        // &:nth-child(1) {
+        //   color: #1890ff;
+        //   background: #e8f4ff;
+        //   border-color: #a3d3ff;
+        // }
+        // &:nth-child(2) {
+        //   color: #13ce66;
+        //   background: #e7faf0;
+        //   border-color: #a1ebc2;
+        // }
+        // &:nth-child(3) {
+        //   color: #ff4949;
+        //   background: #ffeded;
+        //   border-color: #ffb6b6;
+        // }
+        // &:nth-child(4) {
+        //   color: #ffba00;
+        //   background: #fff8e6;
+        //   border-color: #ffe399;
+        // }
+        // &:nth-child(5) {
+        //   color: #0186b7;
+        //   background: #d1f3ff;
+        //   border-color: #01aae7;
+        // }
         &:not(:first-child) {
           margin-left: 10px;
         }
@@ -484,6 +500,11 @@ export default defineComponent({
       .ant-btn-text{
         color: @activeColor;
       }
+    }
+
+    >.pagination{
+      margin-top: 10px;
+      text-align: right;
     }
   }
 }

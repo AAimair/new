@@ -88,15 +88,15 @@
       </div>
       <!--右侧内容区-->
       <div class="mainView">
-        <template v-for="item in tabModules" :key="item.id">
-          <div class="tabViews" :class="{ active: item.id == activeTabId }">
+        <!-- <template> -->
+          <div v-for="item in tabModules" :key="item.id" class="tabViews" :class="{ active: item.id == activeTabId }">
             <component
               :is="dynamicTabsComponent(item)"
               :moduleData="navData"
               :openTab="open"
             />
           </div>
-        </template>
+        <!-- </template> -->
       </div>
     </div>
   </div>
@@ -127,6 +127,9 @@ export default defineComponent({
       navTabsLeft: 0,
       // 展示左侧导航菜单
       showLeftNav: false,
+      
+      // cache 异步组件加载
+      componentCacheMap: {},
     };
   },
   created: function () {
@@ -263,8 +266,12 @@ export default defineComponent({
     },
     // 动态加载tab组件
     dynamicTabsComponent: function (component) {
+      // 缓存动态加载组件
+      if(!this.componentCacheMap[component.id]){
+        this.componentCacheMap[component.id] = defineAsyncComponent(this.tabsComponents[component.id]);
+      }
       // 懒加载 组件
-      return defineAsyncComponent(this.tabsComponents[component.id]) || "";
+      return this.componentCacheMap[component.id] || "";
     },
     // 导航菜单 点击事件
     navMenuClick: function (data) {
