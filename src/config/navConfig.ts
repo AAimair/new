@@ -5,12 +5,15 @@ const alpIcon = () => import("../views/basic/svgIcon.vue");
 
 // 岗位管理
 const systemPost = () => import("../views/system/post/index.vue");
+// 部门管理 
+const systemDept = () => import("../views/system/dept/index.vue");
 
 // 组件模块列表
 const componentMap = {
   index: indexPage,
   alpIcon: alpIcon,
   post: systemPost,
+  dept: systemDept,
 }
 
 // 模块图片

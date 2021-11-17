@@ -143,8 +143,11 @@ export default defineComponent({
     (window as any).axios
       .all([this.getUserInfo(), this.getUserJurisdiction()])
       .then((res) => {
-        console.log(res);
+        // console.log(res);
         this.parseInterfaceData(res);
+
+        // 需要直接开启的tabs页签
+        var opanPath = this.$route.params.path;
 
         if (Array.isArray(this.navData)) {
           this.navData.forEach((one: any) => {
@@ -153,6 +156,25 @@ export default defineComponent({
               this.activeTabId = one.id;
               this.tabModules.push({
                 ...one,
+              });
+            }
+
+            // 验证tabs页签 并开启
+            if(opanPath && one.key == opanPath){
+              this.activeTabId = one.id;
+              this.tabModules.push({
+                ...one,
+              });
+              this.componentCacheMap[one.id] = defineAsyncComponent(this.tabsComponents[one.id]);
+            }else if(opanPath && Array.isArray(one.children)){
+              one.children.forEach(subOne => {
+                if( subOne.key == opanPath){
+                  this.activeTabId = subOne.id;
+                  this.tabModules.push({
+                    ...subOne,
+                  });
+                  this.componentCacheMap[subOne.id] = defineAsyncComponent(this.tabsComponents[subOne.id]);
+                }
               });
             }
           });
@@ -321,6 +343,8 @@ export default defineComponent({
           return;
         }
         this.tabModules.push({ ...data });
+
+        this.$router.push("/home/"+data.key);
       }
       this.activeTabId = data.id;
       this.$forceUpdate();
@@ -649,7 +673,7 @@ export default defineComponent({
 
       &::-webkit-scrollbar {
         width: 10px;
-        height: 180px;
+        height: 10px;
       }
       &::-webkit-scrollbar-thumb {
         background-color: #464646;
