@@ -3,10 +3,11 @@
     <div class="leftNav" @click="navMenuClick(false)">
       <div class="navMenu">
         <ul v-if="showLeftNav" @click.stop="">
+          <!--  -->
           <li
             v-for="item in navData"
-            :class="{ sel: subMenu.selNavId == item.id }"
             :key="item.id"
+            :class="{ sel: subMenu.selNavId == item.id }"
             @click="navMenuClick(item)"
           >
             <div class="icon">
@@ -160,20 +161,22 @@ export default defineComponent({
             }
 
             // 验证tabs页签 并开启
-            if(opanPath && one.key == opanPath){
+            if(opanPath && one.key == opanPath && this.tabsComponents[one.id] ){
               this.activeTabId = one.id;
               this.tabModules.push({
                 ...one,
               });
               this.componentCacheMap[one.id] = defineAsyncComponent(this.tabsComponents[one.id]);
+              this.showLeftNav = one.key;
             }else if(opanPath && Array.isArray(one.children)){
               one.children.forEach(subOne => {
-                if( subOne.key == opanPath){
+                if( subOne.key == opanPath && this.tabsComponents[subOne.id] ){
                   this.activeTabId = subOne.id;
                   this.tabModules.push({
                     ...subOne,
                   });
                   this.componentCacheMap[subOne.id] = defineAsyncComponent(this.tabsComponents[subOne.id]);
+                  this.showLeftNav = subOne.key;
                 }
               });
             }
@@ -220,7 +223,7 @@ export default defineComponent({
 
           // 默认加入首页
           navMenu.push({
-            id: 1,
+            id: 'index',
             icon: "HomeOutlined",
             key: "index",
             name: "首页",
@@ -228,7 +231,7 @@ export default defineComponent({
             component: menuData.componentMap["index"],
           });
 
-          this.tabsComponents[1] = menuData.componentMap["index"];
+          this.tabsComponents[navMenu[0].id] = menuData.componentMap["index"];
           if (oneRes.data.code == 200) {
             // 菜单模版
             var template = {
@@ -264,8 +267,7 @@ export default defineComponent({
                   subTemp.type = subMenu.type == "M" ? "directory" : "command";
                   subTemp.component = menuData.componentMap[subMenu.path];
 
-                  this.tabsComponents[subMenu.id] =
-                    menuData.componentMap[subMenu.path];
+                  this.tabsComponents[subMenu.id] = menuData.componentMap[subMenu.path];
                   newTemp.children.push(subTemp);
                 });
               } else {
@@ -325,11 +327,17 @@ export default defineComponent({
     },
     // 开启导航tab页签
     open: function (data) {
+      // 校验是否有模块
+      if(!this.tabsComponents[data.id]){
+        this.$message.error('模块加载失败');
+        return;
+      }
       // load加载句柄
       var loading = null;
       var ids = this.tabModules.map((o) => o.id);
       // 是否展示左侧导航条
       this.showLeftNav = data.key !== "index";
+      this.$router.push("/home/"+data.key);
       // 是否加载新的页签
       if (ids.indexOf(data.id) == -1) {
         loading = this.$loading({
@@ -343,8 +351,6 @@ export default defineComponent({
           return;
         }
         this.tabModules.push({ ...data });
-
-        this.$router.push("/home/"+data.key);
       }
       this.activeTabId = data.id;
       this.$forceUpdate();

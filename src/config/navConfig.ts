@@ -7,6 +7,8 @@ const alpIcon = () => import("../views/basic/svgIcon.vue");
 const systemPost = () => import("../views/system/post/index.vue");
 // 部门管理 
 const systemDept = () => import("../views/system/dept/index.vue");
+// 字典管理 
+const systemDict = () => import("../views/system/dict/index.vue");
 
 // 组件模块列表
 const componentMap = {
@@ -14,6 +16,7 @@ const componentMap = {
   alpIcon: alpIcon,
   post: systemPost,
   dept: systemDept,
+  dict: systemDict,
 }
 
 // 模块图片
