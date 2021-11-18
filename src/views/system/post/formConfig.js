@@ -32,10 +32,11 @@ const topForm = {
         allowClear: true,
       },
       type: 'select', // input/select/dateMonth/dateWeek/dateTime/radioGroup/treeSelect/checkboxGroup/custom
-    },{
-      type: 'custom',
-      soltName: 'topBtns'
-    }
+    },
+    // {
+    //   type: 'custom',
+    //   soltName: 'topBtns'
+    // }
   ]
 }
 
