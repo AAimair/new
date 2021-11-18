@@ -3,11 +3,12 @@
     <div class="topSearch">
       <div class="tableTit">
         <div class="tit">
-          <span>岗位列表</span>
-          <div class="shrinkBtn" @click="shrinkTopForm">
-            <FullscreenOutlined v-if="topFormShrink" />
-            <FullscreenExitOutlined v-else />
+          <div class="shrinkBtn" @click="shrinkTopForm" :class="{ shrink: topFormShrink }">
+            <alpIcon :size='16' type='svg' icon="miscChevronUpDouble24.svg"/>
+            <!-- <alpIcon :icon='' v-if="topFormShrink" />
+            <FullscreenExitOutlined v-else /> -->
           </div>
+          <span>岗位列表</span>
         </div>
         <div class="tableBtn">
           <a-button
@@ -527,7 +528,7 @@ export default defineComponent({
 .systemPostPage {
   padding: 20px 20px;
   height: 100%;
-  overflow: auto;
+  overflow: hidden;
   background-color: #fff;
   > .topSearch {
     margin-bottom: 10px;
@@ -545,13 +546,27 @@ export default defineComponent({
         line-height: 40px;
 
         >.shrinkBtn{
-          vertical-align: middle;
           display: inline-block;
-          margin-left: 30px;
+          margin-right: 10px;
           font-size: 20px;
-          color: #aaa;
+          // color: #aaa;
           user-select: none;
           cursor: pointer;
+          svg{
+            display: block;
+          }
+          path{
+            fill: #666
+          }
+          &.shrink{
+            >.alp_icon{
+              transform-origin: 50% 50%;
+              transform: rotate(180deg);
+            }
+          }
+        }
+        >span{
+          vertical-align: top;
         }
       }
       >.tableBtn{
