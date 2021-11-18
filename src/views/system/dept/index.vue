@@ -6,16 +6,19 @@
       </div>
       <div class="tree">
         <a-tree
+          v-if="treeData.length"
           :blockNode="true"
           :showIcon="false"
           :showLine="true"
           :replaceFields="treeField"
           size="small"
+          v-model:selectedKeys="selDept"
           :expandedKeys="expandedKeys"
           :auto-expand-parent="autoExpandParent"
           :tree-data="treeData"
-          @expand="onTreeExpand"
           @select="selTreeNode"
+          @expand="onTreeExpand"
+          :key="selDept[0]"
         >
           <template #switcherIcon><down-outlined /></template>
           <template #title="scope">
@@ -102,7 +105,7 @@
   </div>
 </template>
 <script lang="ts">
-import { defineComponent, createVNode } from "vue";
+import { defineComponent, createVNode, ref } from "vue";
 import { ExclamationCircleOutlined } from "@ant-design/icons-vue";
 // 部门表单配置
 import deptFormConfig from "./formConfig.js";
@@ -122,22 +125,9 @@ export default defineComponent({
         key: "deptId",
         value: "deptId",
       },
+      selDept: [],
       // 上级部门下拉树
-      deptFormTree: [
-        {
-          createBy: "admin",
-          delFlag: "0",
-          deptId: "0",
-          deptName: "根目录",
-          email: "",
-          leader: "",
-          orderNum: "0",
-          parentId: "null",
-          phone: "",
-          status: "0",
-          children: [],
-        },
-      ],
+      deptFormTree: [],
       showDeptFormTree: [],
       deptFormParentId: "",
       deptFormParentIdErr: false,
@@ -171,8 +161,9 @@ export default defineComponent({
             var treeData = this.parseTreeData(res.data.data);
             this.treeData = treeData;
             this.oneDimData = res.data.data;
+            this.expandedKeys = res.data.data.map(o => o.deptId);
             // 部门下拉树
-            this.deptFormTree[0].children = treeData;
+            this.deptFormTree = treeData;
           } else {
             this.$message.error(res.data.msg);
           }
@@ -207,6 +198,7 @@ export default defineComponent({
     },
     // 展开树节点
     onTreeExpand: function (keys) {
+      // console.log(keys)
       this.expandedKeys = keys;
       this.autoExpandParent = false;
     },
@@ -214,12 +206,17 @@ export default defineComponent({
     treeNodeContextMenuClick: function (data, menuKey) {
       // console.log("menu", data, menuKey);
       if (menuKey == "add") {
+        this.selDept[0] = data.deptId;
         this.deptFormType = 1;
         this.deptFormParentIdErr = false;
         // 新增
-        this.deptFormData = {};
+        this.deptFormData = {
+          status: {
+            value: '0'
+          }
+        };
         var treeData = JSON.parse(JSON.stringify(this.deptFormTree));
-        this.deptFormParentId = data.deptId;
+        this.deptFormParentId = [data.deptId];
         this.showDeptFormTree = treeData;
         this.formUpdataKey++;
       } else if (menuKey == "del") {
@@ -236,6 +233,7 @@ export default defineComponent({
                 .then((res) => {
                   resolve(true);
                   if (res.data.code == 200) {
+                    that.selDept.lenght = 0;
                     that.getDeptTree();
                     
                     that.deptFormType = 0;
@@ -324,6 +322,9 @@ export default defineComponent({
       this.deptFormParentIdErr =
         typeof this.deptFormParentId == "undefined" ||
         this.deptFormParentId === "";
+      if(this.deptFormParentId){
+        this.selDept[0] = this.deptFormParentId;
+      }
       return this.deptFormParentIdErr;
     },
 
