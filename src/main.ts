@@ -4,6 +4,7 @@ import router from './router'
 import store from './store'
 import common from "./common/common_vue.js"
 import md5 from 'blueimp-md5';
+import * as echarts from 'echarts';
 
 const app  = createApp(App);
 // alpUI  
@@ -18,6 +19,8 @@ import requestConfig from './common/requireConfig.js';
 // axios
 app.config.globalProperties.$axios = requestConfig.http;
 app.config.globalProperties.$axiosFile = requestConfig.httpForm;
+// ECharts
+app.config.globalProperties.$echarts = echarts;
 // common 通用方法
 app.config.globalProperties.$common = common;
 app.config.globalProperties.$loading = common.loading;
