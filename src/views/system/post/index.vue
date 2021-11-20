@@ -43,10 +43,10 @@
             <template #icon><DeleteOutlined /></template>
             删除
           </a-button>
-          <a-button size="small" @click="topSearch('export')">
+          <!-- <a-button size="small" @click="topSearch('export')">
             <template #icon><PlusOutlined /></template>
             导出
-          </a-button>
+          </a-button> -->
         </div>
       </div>
       <div class="topSearchForm" :class="{ shrink: topFormShrink }">
@@ -281,11 +281,6 @@ export default defineComponent({
     shrinkTopForm: function() {
       this.topFormShrink = !this.topFormShrink;
       this.tableViewHeight += this.topFormHeight*(this.topFormShrink?1:-1);
-
-      // console.log(this.tableViewHeight)
-      // this.$nextTick(function() {
-      //   console.log(this.$el.querySelector('.topSearchForm').clientHeight);
-      // })
     },
 
     // 新增/修改/删除/导出 岗位数据
@@ -370,7 +365,11 @@ export default defineComponent({
                   .then((res) => {
                     resolve(true);
                     if (res.data.code == 200) {
-                      that.getList();
+                      that.rowConfig.data = [];
+                      that.tableSelection.selectedRowKeys = [];
+                      var form = that.$refs["topForm"];
+                      var data = form.getFormData().formData;
+                      that.getList(data);
                     } else {
                       that.$message.error(res.data.msg);
                     }
@@ -436,7 +435,17 @@ export default defineComponent({
                   .then((res) => {
                     resolve(true);
                     if (res.data.code == 200) {
-                      that.getList();
+                      // 清空表格选中数据
+                      for(var i=that.rowConfig.data.length-1;i>=0;i--){
+                        var one = that.rowConfig.data[i];
+                        if(one.dictId == item.dictId){
+                          that.tableSelection.selectedRowKeys.splice(i,1);
+                          that.rowConfig.data.splice(i,1);
+                        }
+                      }
+                      var form = that.$refs["topForm"];
+                      var data = form.getFormData().formData;
+                      that.getList(data);
                     } else {
                       that.$message.error(res.data.msg);
                     }
@@ -470,7 +479,9 @@ export default defineComponent({
 
     // table 分页数量变更
     tablePageChange: function (page) {
-      this.getList();
+      var form = this.$refs["topForm"];
+      var data = form.getFormData().formData;
+      this.getList(data);
     },
 
     // 表格数据  新增 / 修改
@@ -504,7 +515,9 @@ export default defineComponent({
                     this.rowConfig.type == "add" ? "添加成功" : "保存成功"
                   );
                   this.rowConfig.show = false;
-                  this.getList();
+                  var form = this.$refs["topForm"];
+                  var data = form.getFormData().formData;
+                  this.getList(data);
                 } else {
                   this.$message.error(requestRes.data.msg);
                 }

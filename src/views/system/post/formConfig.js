@@ -4,7 +4,7 @@ const topForm = {
   layout: "inline", // 表单布局 'horizontal'|'vertical'|'inline'  
   hideRequiredMark: true, // 是否隐藏必选标记
   // a_attr: {}, //  原antd组件属性
-  colon: true, // layout = horizontal 有效 label后是否有冒号
+  colon: false, // layout = horizontal 有效 label后是否有冒号
   // gutter: 10, // 表单块间隔
   form: [
     {
@@ -33,10 +33,6 @@ const topForm = {
       },
       type: 'select', // input/select/dateMonth/dateWeek/dateTime/radioGroup/treeSelect/checkboxGroup/custom
     },
-    // {
-    //   type: 'custom',
-    //   soltName: 'topBtns'
-    // }
   ]
 }
 

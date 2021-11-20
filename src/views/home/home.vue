@@ -216,6 +216,8 @@ export default defineComponent({
             this.$store.state.userInfo = oneRes.data.user;
             this.$store.state.userRoles = oneRes.data.roles;
             this.$store.state.userPermissions = oneRes.data.permissions;
+          }else{
+            this.$router.replace("/login")
           }
         } else if (oneRes.config.url == "/getRouters") {
           // 用户路由权限
@@ -279,6 +281,8 @@ export default defineComponent({
             // 保存用户权限菜单
             this.$store.state.routerMenu = navMenu;
             this.navData = navMenu;
+          }else{
+            this.$router.replace("/login")
           }
         }
       });
