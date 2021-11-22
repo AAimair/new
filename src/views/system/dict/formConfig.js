@@ -149,6 +149,13 @@ const dictDataForm = {
   // gutter: 10, // 表单块间隔
   form: [
     {
+      label: "dictCode",
+      name: 'dictCode',
+      value: '',
+      hidden: true,
+      disabled: true,
+      type: 'input', // input/select/dateMonth/dateWeek/dateTime/radioGroup/treeSelect/checkboxGroup/custom
+    },{
       label: "字典类型",
       name: 'dictType',
       value: '',

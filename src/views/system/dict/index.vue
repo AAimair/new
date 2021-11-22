@@ -299,12 +299,12 @@ export default defineComponent({
         },
         tableData: [],
         columns: [
-          {
-            dataIndex: "dictId",
-            key: "dictId",
-            title: "字典编号",
-            slots: { customRender: "dictId" },
-          },
+          // {
+          //   dataIndex: "dictId",
+          //   key: "dictId",
+          //   title: "字典编号",
+          //   slots: { customRender: "dictId" },
+          // },
           {
             dataIndex: "dictName",
             key: "dictName",
@@ -376,11 +376,11 @@ export default defineComponent({
         },
         tableData: [],
         columns: [
-          {
-            dataIndex: "dictCode",
-            key: "dictCode",
-            title: "字典编码",
-          },
+          // {
+          //   dataIndex: "dictCode",
+          //   key: "dictCode",
+          //   title: "字典编码",
+          // },
           {
             dataIndex: "dictLabel",
             key: "dictLabel",
@@ -875,7 +875,7 @@ export default defineComponent({
     },
     // 选中字典类型
     selDictType: function (data) {
-      // console.log(data)
+      // console.log(data) 
       // 获取已选中行index
       // var selTableIds = [...this.topTable.tableSelection.selectedRowKeys];
       // if(selTableIds.indexOf(data.index)==-1){
@@ -945,7 +945,6 @@ export default defineComponent({
     // 新增/修改  保存提交
     submitConfig:function(state){
       if(state){
-        
         var form = this.$refs["rowForm"];
         // 校验表单数据
         form.formValidation().then((res) => {
