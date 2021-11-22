@@ -187,11 +187,11 @@ export default defineComponent({
       },
       tableData: [],
       columns: [
-        {
-          dataIndex: "postId",
-          key: "postId",
-          title: "岗位编号",
-        },
+        // {
+        //   dataIndex: "postId",
+        //   key: "postId",
+        //   title: "岗位编号",
+        // },
         {
           dataIndex: "postCode",
           key: "postCode",
