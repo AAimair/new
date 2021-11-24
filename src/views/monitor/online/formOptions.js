@@ -31,14 +31,16 @@ const tableColumns = [
     width: 50,
     title: "序号",
     align: 'center'
-  },{
-    dataIndex: "tokenId",
-    key: "tokenId",
-    width: 250,
-    title: "会话编号",
-    ellipsis: true,
-    align: 'center'
-  },{
+  },
+  // {
+  //   dataIndex: "tokenId",
+  //   key: "tokenId",
+  //   width: 250,
+  //   title: "会话编号",
+  //   ellipsis: true,
+  //   align: 'center'
+  // },
+  {
     dataIndex: "userName",
     key: "userName",
     title: "登录名称",

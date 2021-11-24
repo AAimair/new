@@ -750,6 +750,7 @@ export default defineComponent({
                 _this.sendRequest('topDelete', ids).then(res => {
                   if (res.data.code === 200) {
                     _this.topSearchParams.pageNum = 1;
+                    _this.topRowSelection.length = 0;
                     _this.getTopTableData();
                   } else {
                     _this.$message.error(res.data.msg);
@@ -836,6 +837,7 @@ export default defineComponent({
                 _this.sendRequest('bottomDelete', ids).then(res => {
                   if (res.data.code === 200) {
                     _this.bottomSearchParams.pageNum = 1;
+                    _this.bottomRowSelection.length = 0;
                     _this.getBottomData();
                   } else {
                     _this.$message.error(res.data.msg);
@@ -855,6 +857,7 @@ export default defineComponent({
                 _this.sendRequest('clear', null).then(res => {
                   if (res.data.code === 200) {
                     _this.bottomSearchParams.pageNum = 1;
+                    _this.bottomRowSelection.length = 0;
                     _this.getBottomData();
                   } else {
                     _this.$message.error(res.data.msg);
@@ -922,32 +925,28 @@ export default defineComponent({
       if (type && (this.topDialogOptions.mode === 'add' || this.topDialogOptions.mode === 'update')) {
         form.formValidation().then((res) => {
           if (res.state) {
-            const loadingHandle = this.$loading({
-              background: "rgba(0,0,0,0.0)",
-              size: 166,
-              iconColor: "#00678C",
-            })
+            this.topDialogOptions.loading = true;
             const isAdd = this.topDialogOptions.mode === 'add';
             // 表单数据
             const {formData} = form.getFormData();
             this.sendRequest(isAdd ? 'add' : 'update', formData).then(res => {
-              loadingHandle.close();
+              this.topDialogOptions.loading = false;
               if (res.data.code === 200) {
-                this.topSearchParams.pageNum = 1;
+                this.topDialogOptions.show = false;
                 this.getTopTableData();
               } else {
                 this.$message.error(res.data.msg)
               }
             }).catch(() => {
-              loadingHandle.close();
+              this.topDialogOptions.loading = false;
               this.$message.error('服务器异常')
             })
           }
         })
+      }else {
+        this.topDialogOptions.data = {};
+        this.topDialogOptions.show = false;
       }
-      // form.resetValidation();
-      this.topDialogOptions.data = {};
-      this.topDialogOptions.show = false;
     },
     bottomDialogConfirm:function () {
       this.$refs.bottomForm.resetValidation();
@@ -971,8 +970,8 @@ export default defineComponent({
         this.topDialogOptions.key ++;
         const cron = this.$refs.cronRef.getCorn();
         this.topDialogOptions.data.cronExpression = {value: cron};
-        this.cronDialogOptions.show = false;
       }
+      this.cronDialogOptions.show = false;
     }
   }
 })

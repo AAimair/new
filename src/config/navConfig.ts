@@ -9,6 +9,10 @@ const systemPost = () => import("../views/system/post/index.vue");
 const systemDept = () => import("../views/system/dept/index.vue");
 // 字典管理
 const systemDict = () => import("../views/system/dict/index.vue");
+// 参数设置
+const systemConfig = () => import("../views/system/config/index.vue");
+// 公告通知
+const systemNotice = () => import("../views/system/notice/index.vue");
 // 操作日志
 const systemOperlog = () => import("../views/system/operlog/index.vue");
 // 登录日志
@@ -35,6 +39,8 @@ const componentMap = {
   alpIcon: alpIcon,
   post: systemPost,
   dept: systemDept,
+  config: systemConfig,
+  notice: systemNotice,
   operlog:systemOperlog,
   logininfor: systemLogininfor,
   online: monitorOnline,

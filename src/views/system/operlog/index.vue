@@ -351,6 +351,7 @@ export default defineComponent({
               _this.sendRequest('delete', ids).then(res => {
                 if (res.data.code === 200) {
                   _this.pagination.pageNum = 1;
+                  _this.rowSelection.length = 0;
                   _this.getTableData();
                 } else {
                   _this.$message.error(res.data.msg);
@@ -370,6 +371,7 @@ export default defineComponent({
               _this.sendRequest('clear', null).then(res => {
                 if (res.data.code === 200) {
                   _this.pagination.pageNum = 1;
+                  _this.rowSelection.length = 0;
                   _this.getTableData();
                 } else {
                   _this.$message.error(res.data.msg);
@@ -413,8 +415,8 @@ export default defineComponent({
           break;
         case 'reset': // 重置
           this.pagination.pageNum = 1;
-          this.pagination.orderByColumn = 'operTime';
-          this.pagination.isAsc = 'descending';
+          this.pagination.orderByColumn = null;
+          this.pagination.isAsc = null;
           this.$refs.searchRef.resetValidation();
           break;
       }

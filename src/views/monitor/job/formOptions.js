@@ -40,14 +40,16 @@ const searchOptions = {
 
 // 表格列配置
 const tableColumns = [
+  // {
+  //   dataIndex: "jobId",
+  //   key: "jobId",
+  //   width: 100,
+  //   ellipsis: true,
+  //   title: "任务编号",
+  //   align: 'center',
+  //   hidden: true
+  // },
   {
-    dataIndex: "jobId",
-    key: "jobId",
-    width: 100,
-    ellipsis: true,
-    title: "任务编号",
-    align: 'center'
-  }, {
     dataIndex: "jobName",
     key: "jobName",
     title: "任务名称",
@@ -263,14 +265,15 @@ const bottomSearchOptions = {
 
 // 下表列配置
 const bottomTableColumns = [
+  // {
+  //   dataIndex: "jobLogId",
+  //   key: "jobLogId",
+  //   width: 100,
+  //   ellipsis: true,
+  //   title: "日志编号",
+  //   align: 'center'
+  // },
   {
-    dataIndex: "jobLogId",
-    key: "jobLogId",
-    width: 100,
-    ellipsis: true,
-    title: "日志编号",
-    align: 'center'
-  }, {
     dataIndex: "jobName",
     key: "jobName",
     width: 200,

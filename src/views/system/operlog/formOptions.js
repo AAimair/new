@@ -57,13 +57,14 @@ const searchFormOptions = {
 
 // 表格列配置
 const columns = [
+  // {
+  //   dataIndex: "operId",
+  //   key: "operId",
+  //   ellipsis: true,
+  //   title: "日志编号",
+  //   align: 'center'
+  // },
   {
-    dataIndex: "operId",
-    key: "operId",
-    ellipsis: true,
-    title: "日志编号",
-    align: 'center'
-  }, {
     dataIndex: "title",
     key: "title",
     title: "系统模块",
