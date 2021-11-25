@@ -68,6 +68,19 @@ const tableRowForm = {
       span: 24,
       type: 'input', // input/select/dateMonth/dateWeek/dateTime/radioGroup/treeSelect/checkboxGroup/custom/textarea 
     },{
+      label: "子系统",
+      name: 'subsysId',
+      placeholder: '',
+      value: '',
+      span: 24,
+      rule: [
+        { 
+          required: true,
+          message: '子系统不能为空',
+        },
+      ],
+      type: 'select', // input/select/dateMonth/dateWeek/dateTime/radioGroup/treeSelect/checkboxGroup/custom/textarea 
+    },{
       label: "角色名称",
       name: 'roleName',
       placeholder: '请输入角色名称',
@@ -137,7 +150,7 @@ const tableRowForm = {
   ]
 }
 
-const limitForm = {
+const dataLimitForm = {
   titleShow: false, //  表单块标题是否隐藏
   labelAlign: "right", // label对齐方式 left|right,
   layout: "horizontal", // 表单布局 'horizontal'|'vertical'|'inline'  
@@ -160,7 +173,8 @@ const limitForm = {
       name: 'roleName',
       placeholder: '请输入角色名称',
       value: '',
-      span: 12,
+      disabled: true,
+      span: 24,
       rule: [
         { 
           required: true,
@@ -173,7 +187,8 @@ const limitForm = {
       name: 'roleKey',
       placeholder: '请输入权限字符',
       value: '',
-      span: 12,
+      disabled: true,
+      span: 24,
       rule: [
         { 
           required: true,
@@ -186,8 +201,14 @@ const limitForm = {
       name: 'dataScope',
       placeholder: '',
       value: '',
-      span: 12,
-      options: [],
+      span: 24,
+      options: [
+        { label: '全部数据权限', value: '1' },
+        { label: '自定数据权限', value: '2' },
+        { label: '本部门数据权限', value: '3' },
+        { label: '本部门及以下数据权限', value: '4' },
+        { label: '仅本人数据权限', value: '5' },
+      ],
       type: 'select', // input/select/dateMonth/dateWeek/dateTime/radioGroup/treeSelect/checkboxGroup/custom/textarea 
     },{
       // 数据权限
@@ -201,5 +222,5 @@ const limitForm = {
 export default {
   topForm,
   tableRowForm,
-  limitForm,
+  dataLimitForm,
 }

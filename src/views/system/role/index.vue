@@ -158,7 +158,6 @@
         <a-button
           key="submit"
           type="primary"
-          :loading="rowConfig.loading"
           @click="submitConfig(true)"
           >保存</a-button
         >
@@ -203,6 +202,85 @@
         </alpFormGroup>
       </div>
     </a-modal>
+
+    <!-- 分配数据权限 -->
+    <a-modal
+      v-model:visible="dataLimitConfig.show"
+      title="分配数据权限"
+      :width="500"
+      :closable="false"
+      class="editPopup"
+    >
+      <template #footer>
+        <a-button key="back" @click="submitDataLimitConfig(false)">取消</a-button>
+        <a-button
+          key="submit"
+          type="primary"
+          @click="submitDataLimitConfig(true)"
+          >保存</a-button
+        >
+      </template>
+      <div class="popupMain">
+        <alpFormGroup
+          v-if="dataLimitConfig.show"
+          ref="dataLimitForm"
+          :options="dataLimitForm"
+          :form_data="dataLimitFormData"
+        >
+          <template #dataLimit>
+            <div class="group">
+              <div class="label">数据权限</div>
+              <div class="setInput">
+                <div class="control">
+                  <a-checkbox size="small" v-model:checked="control.dataLimitFold" @change="controlChange('dataLimitFold')">展开/折叠</a-checkbox>
+                  <a-checkbox size="small" v-model:checked="control.dataLimitSelAll" @change="controlChange('dataLimitSelAll')">全选/全不选</a-checkbox>
+                  <a-checkbox size="small" v-model:checked="control.dataLimitRelevancy" @change="controlChange('dataLimitRelevancy')">父子联动</a-checkbox>
+                </div>
+                <div class="tree">
+                  <a-tree
+                    checkable
+                    size="small"
+                    :tree-data="dataLimitTreeData"
+                    :checkStrictly="!control.dataLimitRelevancy"
+                    v-model:expandedKeys="dataLimitExpandedKeys"
+                    v-model:checkedKeys="dataLimitCheckedKeys"
+                    :replaceFields="{
+                      children:'children', 
+                      title:'deptName', 
+                      key:'deptId', 
+                      value: 'deptId'
+                    }"
+                  >
+                    <template #title0010><span style="color: #1890ff">sss</span></template>
+                  </a-tree>
+                </div>
+              </div>
+            </div>
+          </template>
+        </alpFormGroup>
+      </div>
+    </a-modal>
+    
+    <!-- 分配用户 -->
+    <a-modal
+      v-model:visible="allotUserConfig.show"
+      title="分配数据权限"
+      :closable="false"
+      class="editPopup"
+    >
+      <template #footer>
+        <a-button key="back" @click="submitAllotUserConfig(false)">取消</a-button>
+        <a-button
+          key="submit"
+          type="primary"
+          @click="submitAllotUserConfig(true)"
+          >保存</a-button
+        >
+      </template>
+      <div class="popupMain">
+        分配用户
+      </div>
+    </a-modal>
   </div>
 </template>
 <script lang="ts">
@@ -215,6 +293,8 @@ export default defineComponent({
   data: function () {
     return {
       majorKey:'roleId',
+      // 子系统下拉项
+      subSysOpt: [],
       topForm: fromConfig.topForm,
       topFormShrink: false,
       topFormHeight: 0,
@@ -279,21 +359,41 @@ export default defineComponent({
         type: "edit", // add/edit
         data: [],
       },
+      dataLimitConfig: {
+        show: false,
+        type: "edit", // add/edit
+        data: null,
+      },
+      allotUserConfig: {
+        show: false,
+        type: "edit", // add/edit
+        data: null,
+      },
+      dataLimitForm: fromConfig.dataLimitForm,
+      dataLimitFormData: ref({}),
 
       // 菜单树 数据
       menuTreeData: [],
       menuExpandedKeys: [],
       allMenuNodeKeys: [],
       menuCheckedKeys: [],
+      dataLimitTreeData: [],
+      dataLimitExpandedKeys: [],
+      allDataLimitNodeKeys: [],
+      dataLimitCheckedKeys: [],
       control:{
         fold: false,
         selAll: false,
         relevancy: true,
+        dataLimitFold: false,
+        dataLimitSelAll: false,
+        dataLimitRelevancy: true,
       },
 
 
       // 保存/编辑 表单模板
       formTemplate: {
+        subsysId: undefined,
         roleId: undefined,
         roleName: undefined,
         roleKey: undefined,
@@ -301,6 +401,7 @@ export default defineComponent({
         menuIds: undefined,
         status: 0,
         remark: undefined,
+        dataScope: undefined,
       },
     };
   },
@@ -312,27 +413,47 @@ export default defineComponent({
   },
   created: function () {
     this.getList();
-
+    // 获取子系统
+    this.genInterface('getSubSys').then(res => {
+      if(res.data.code == 200){
+        this.subSysOpt = res.data.rows.map(o => {
+          return { 
+            label: o.subsysName, 
+            value: o.subsysId 
+          }
+        });
+        fromConfig.tableRowForm.form[1].options = this.subSysOpt;
+      }
+    });
     // 获取菜单下拉树
     this.genInterface('getMenuTree').then(res => {
       // console.log(res)
       if(res.data.code == 200){
         this.allMenuNodeKeys = res.data.data.map(o => o.menuId);
-        var tree = this.parseTree(res.data.data);
+        var tree = this.parseTree(res.data.data, 'menuId');
         this.menuTreeData = tree;
+      }
+    });
+    // 获取部门下拉树
+    this.genInterface('getDeptTree').then(res => {
+      // console.log(res)
+      if(res.data.code == 200){
+        this.allDataLimitNodeKeys = res.data.data.map(o => o.deptId);
+        var tree = this.parseTree(res.data.data, 'deptId');
+        this.dataLimitTreeData = tree;
       }
     });
   },
   methods: {
     // 解析树
-    parseTree: function(data){
+    parseTree: function(data, key){
       var res = <any>[];
       for(var i=0;i<data.length;i++){
         var one = data[i];
         var searchRes = this.$common.recursiveSearch({
           data: res, 
           recursiveKey: 'children', 
-          searchKey: 'menuId', 
+          searchKey: key, 
           searchVal: one.parentId
         });
         if(searchRes.result){
@@ -387,9 +508,11 @@ export default defineComponent({
       this.tableViewHeight += this.topFormHeight*(this.topFormShrink?1:-1);
     },
 
-    // 新增/修改/删除/导出 岗位数据
+    // 新增/修改/删除/导出 
     genInterface: function (type, data) {
       switch (type) {
+        case 'get':
+          return this.$axios.get('/system/role/'+data)
         case "add":
           // 新增
           return this.$axios.post("/system/role", data);
@@ -399,9 +522,17 @@ export default defineComponent({
         case "delete":
           //  删除
           return this.$axios.delete("/system/role/" + data);
+        case "getSubSys":
+          return this.$axios.get("/system/subsys/list")
         case 'getMenuTree':
           // 获取字典下拉列表
           return this.$axios.get('/system/menu/list')
+        case 'getDeptTree':
+          // 获取字典下拉列表
+          return this.$axios.get('/system/dept/list')
+        case 'saveDataLimit':
+          // 数据权限设置
+          return this.$axios.put('/system/role/dataScope', data)
         case "export":
           //  导出
           return this.$axios.get("/system/post/export", {
@@ -444,11 +575,21 @@ export default defineComponent({
           this.menuExpandedKeys = [];
           var editData = this.rowConfig.data[0];
 
-          for(var k in this.formTemplate){
-            this.tableRowFormData[k] = editData[k]||this.formTemplate[k];
-          }
-          this.rowConfig.type = "edit";
-          this.rowConfig.show = true;
+          this.genInterface('get', editData.roleId).then(res => {
+            // console.log(res)
+            if(res.data.code == 200){
+              for(var k in this.formTemplate){
+                this.tableRowFormData[k] = {
+                  value: res.data.data[k]||this.formTemplate[k]
+                };
+              }
+              this.menuExpandedKeys = res.data.data.menuIds;
+              this.rowConfig.type = "edit";
+              this.rowConfig.show = true;
+            }else{
+              this.$message.error(res.data.msg)
+            }
+          });
           break;
         case "delete":
           // 删除
@@ -494,7 +635,7 @@ export default defineComponent({
 
     // 项目操作
     itemOptions: function (type, item) {
-      console.log(type, item)
+      // console.log(type, item)
       switch (type) {
         case "edit":
           // 修改
@@ -504,15 +645,46 @@ export default defineComponent({
           this.menuCheckedKeys = [];
           this.menuExpandedKeys = [];
 
-          for(var k in this.formTemplate){
-            this.tableRowFormData[k] = {
-              value: item[k]||this.formTemplate[k]
-            };
-          }
-          console.log(type, this.tableRowFormData);
-          
-          this.rowConfig.type = "edit";
-          this.rowConfig.show = true;
+          this.genInterface('get', item.roleId).then(res => {
+            // console.log(res)
+            if(res.data.code == 200){
+              for(var k in this.formTemplate){
+                this.tableRowFormData[k] = {
+                  value: res.data.data[k]||this.formTemplate[k]
+                };
+              }
+              
+              this.menuExpandedKeys = res.data.data.menuIds;
+              this.rowConfig.type = "edit";
+              this.rowConfig.show = true;
+            }else{
+              this.$message.error(res.data.msg)
+            }
+          });
+          break;
+        case 'dataLimit':
+          // 修改
+          this.control.dataLimitFold = false;
+          this.control.dataLimitSelAll = false;
+          this.control.dataLimitRelevancy = true;
+          this.dataLimitExpandedKeys = [];
+          this.dataLimitCheckedKeys = [];
+
+          this.genInterface('get', item.roleId).then(res => {
+            // console.log(res)
+            if(res.data.code == 200){
+              for(var k in this.formTemplate){
+                this.dataLimitFormData[k] = {
+                  value: res.data.data[k]||this.formTemplate[k]
+                };
+              }
+              this.dataLimitCheckedKeys = res.data.data.deptIds||[];
+              this.dataLimitConfig.data = res.data.data;
+              this.dataLimitConfig.show = true;
+            }else{
+              this.$message.error(res.data.msg)
+            }
+          });
           break;
         case "delete":
           // 删除
@@ -593,6 +765,26 @@ export default defineComponent({
         case 'relevancy':
           // 父子关联
           break;
+        // 数据权限
+        case 'dataLimitFold':
+          // 折叠
+          if(this.control.dataLimitFold){
+            this.dataLimitExpandedKeys = [...this.allDataLimitNodeKeys];
+          }else{
+            this.dataLimitExpandedKeys = [];
+          }
+          break;
+        case 'dataLimitSelAll':
+          // 选中
+          if(this.control.dataLimitSelAll){
+            this.dataLimitCheckedKeys = [...this.allDataLimitNodeKeys];
+          }else{
+            this.dataLimitCheckedKeys = [];
+          }
+          break;
+        case 'dataLimitRelevancy':
+          // 父子关联
+          break;
       }
     },
 
@@ -645,6 +837,57 @@ export default defineComponent({
         });
       } else {
         this.rowConfig.show = false;
+      }
+    },
+    // 数据权限修改
+    submitDataLimitConfig: function (state) {
+      if (state) {
+        var form = this.$refs["dataLimitForm"];
+        // 校验表单数据
+        form.formValidation().then((res) => {
+          // console.log(res)
+          if (res.state) {
+            var queryParams = {
+              ...this.formTemplate
+            };
+            queryParams.deptIds = this.dataLimitCheckedKeys;
+
+            // 合并表单项内容
+            queryParams = Object.assign(queryParams, res.form);
+            var loading = this.$loading({
+              background: "rgba(0,0,0,0.0)",
+              size: 166,
+              iconColor: "#00678C",
+            });
+            this.genInterface('saveDataLimit', queryParams)
+              .then((requestRes) => {
+                loading.close();
+                if (requestRes.data.code == 200) {
+                  this.$message.success("保存成功");
+                  this.dataLimitConfig.show = false;
+                  var form = this.$refs["topForm"];
+                  var data = form.getFormData().formData;
+                  this.getList(data);
+                } else {
+                  this.$message.error(requestRes.data.msg);
+                }
+              })
+              .catch((err) => {
+                loading.close();
+                this.$message.error("服务器异常");
+              });
+          }
+        });
+      } else {
+        this.dataLimitConfig.show = false;
+      }
+    },
+    // 分配用户
+    submitAllotUserConfig: function (state) {
+      if (state) {
+
+      } else {
+        this.dataLimitConfig.show = false;
       }
     },
   },
