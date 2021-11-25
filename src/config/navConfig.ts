@@ -9,8 +9,20 @@ const systemPost = () => import("../views/system/post/index.vue");
 const systemDept = () => import("../views/system/dept/index.vue");
 // 字典管理
 const systemDict = () => import("../views/system/dict/index.vue");
+// 参数设置
+const systemConfig = () => import("../views/system/config/index.vue");
+// 公告通知
+const systemNotice = () => import("../views/system/notice/index.vue");
+// 操作日志
+const systemOperlog = () => import("../views/system/operlog/index.vue");
+// 登录日志
+const systemLogininfor = () => import("../views/system/logininfor/index.vue");
 
 //------- 系统监控 -----------//
+// 在线用户
+const monitorOnline = () => import("../views/monitor/online/index.vue");
+// 定时任务
+const monitorJob = () => import("../views/monitor/job/index.vue");
 // 数据监控
 const monitorDruid = () => import("../views/monitor/druid/index.vue");
 // 服务监控
@@ -21,17 +33,27 @@ const monitorCache = () => import("../views/monitor/cache/index.vue");
 // 代码生成
 const toolGen = () => import("../views/tool/gen/index.vue");
 
+//------- 系统工具 -----------//
+const toolSwagger = () => import("../views/tool/swagger/index.vue");
+
 // 组件模块列表
 const componentMap = {
   index: indexPage,
   alpIcon: alpIcon,
   post: systemPost,
   dept: systemDept,
+  config: systemConfig,
+  notice: systemNotice,
+  operlog:systemOperlog,
+  logininfor: systemLogininfor,
+  online: monitorOnline,
+  job: monitorJob,
   druid: monitorDruid,
   server: monitorServer,
   cache: monitorCache,
   dict: systemDict,
   gen: toolGen,
+  swagger: toolSwagger,
 }
 
 // 模块图片
