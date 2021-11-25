@@ -30,6 +30,9 @@ const monitorServer = () => import("../views/monitor/server/index.vue");
 // 缓存监控
 const monitorCache = () => import("../views/monitor/cache/index.vue");
 
+// 代码生成
+const toolGen = () => import("../views/tool/gen/index.vue");
+
 //------- 系统工具 -----------//
 const toolSwagger = () => import("../views/tool/swagger/index.vue");
 
@@ -49,6 +52,7 @@ const componentMap = {
   server: monitorServer,
   cache: monitorCache,
   dict: systemDict,
+  gen: toolGen,
   swagger: toolSwagger,
 }
 
