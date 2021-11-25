@@ -18,6 +18,9 @@ const monitorServer = () => import("../views/monitor/server/index.vue");
 // 缓存监控
 const monitorCache = () => import("../views/monitor/cache/index.vue");
 
+// 代码生成
+const toolGen = () => import("../views/tool/gen/index.vue");
+
 // 组件模块列表
 const componentMap = {
   index: indexPage,
@@ -28,6 +31,7 @@ const componentMap = {
   server: monitorServer,
   cache: monitorCache,
   dict: systemDict,
+  gen: toolGen,
 }
 
 // 模块图片

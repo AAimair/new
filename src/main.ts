@@ -27,7 +27,6 @@ app.config.globalProperties.$loading = common.loading;
 // md5
 app.config.globalProperties.$md5 = md5;
 
-
 (window as any).$_alp = app;
 
 app.use(AlpUI);
