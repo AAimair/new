@@ -392,7 +392,7 @@ export default defineComponent({
               this.sub[k] = res.data.data.info[k]
             }
             // 父级菜单
-            this.parentMenuId = res.data.data.info.parentMenuId
+            this.superior = res.data.data.info.parentMenuId
             this.updateKey++;
 
             this.buildForm.form[7].hidden = res.data.data.info.genType == '0'?true: false;

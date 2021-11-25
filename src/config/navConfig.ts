@@ -17,6 +17,8 @@ const systemNotice = () => import("../views/system/notice/index.vue");
 const systemOperlog = () => import("../views/system/operlog/index.vue");
 // 登录日志
 const systemLogininfor = () => import("../views/system/logininfor/index.vue");
+// 角色管理
+const systemRolePage = () => import("../views/system/role/index.vue");
 
 //------- 系统监控 -----------//
 // 在线用户
@@ -54,6 +56,7 @@ const componentMap = {
   dict: systemDict,
   gen: toolGen,
   // swagger: toolSwagger,
+  role: systemRolePage,
 }
 
 // 模块图片

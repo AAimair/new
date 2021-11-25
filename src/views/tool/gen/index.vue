@@ -23,7 +23,9 @@
             <template #icon><SyncOutlined /></template>
             重置
           </a-button>
-          <a-button size="small" @click="topSearch('add')">
+          <a-button size="small" @click="topSearch('build')"
+            :disabled="tableSelection.selectedRowKeys.length !== 1"
+          >
             <template #icon><PlusOutlined /></template>
             生成
           </a-button>
@@ -142,34 +144,6 @@
       </div>
     </div>
 
-    <!-- 新增/修改弹窗 -->
-    <a-modal
-      v-model:visible="rowConfig.show"
-      :title="rowConfig.type == 'add' ? '添加岗位' : '编辑岗位'"
-      :width="350"
-      :closable="false"
-    >
-      <template #footer>
-        <a-button key="back" @click="submitConfig(false)">取消</a-button>
-        <a-button
-          key="submit"
-          type="primary"
-          :loading="rowConfig.loading"
-          @click="submitConfig(true)"
-          >保存</a-button
-        >
-      </template>
-      <div class="popupMain">
-        <alpFormGroup
-          v-if="rowConfig.show"
-          ref="rowForm"
-          :options="tableRowForm"
-          :form_data="tableRowFormData"
-        >
-        </alpFormGroup>
-      </div>
-    </a-modal>
-
      <!-- 代码预览 -->
     <a-modal 
       :title="preview.title" 
@@ -180,14 +154,6 @@
       >
       <template #footer>
         <a-button key="back" @click="preview.show=false">取消</a-button>
-        <!-- <a-button key="back" @click="submitConfig(false)">取消</a-button>
-        <a-button
-          key="submit"
-          type="primary"
-          :loading="rowConfig.loading"
-          @click="submitConfig(true)"
-          >保存</a-button
-        > -->
       </template>
       <a-tabs v-model:activeKey="preview.activeKey">
         <a-tab-pane 
@@ -524,26 +490,6 @@ export default defineComponent({
       this.tableViewHeight += this.topFormHeight*(this.topFormShrink?1:-1);
     },
 
-    // 新增/修改/删除/导出 岗位数据
-    setPost: function (type, data) {
-      switch (type) {
-        case "add":
-          // 新增
-          return this.$axios.post("/system/post", data);
-        case "edit":
-          // 修改
-          return this.$axios.put("/system/post", data);
-        case "delete":
-          //  删除
-          return this.$axios.delete("/system/post/" + data);
-        case "export":
-          //  导出
-          return this.$axios.get("/system/post/export", {
-            params: data,
-          });
-      }
-    },
-
     // 顶部查询  方法
     topSearch: function (type) {
       var form = this.$refs["topForm"];
@@ -614,6 +560,22 @@ export default defineComponent({
           this.importTable.selData = [];
           this.importTable.tableSelection.selectedRowKeys = [];
           this.getImportList();
+          break;
+        case 'build':
+          var editData = this.rowConfig.data[0];
+          if(editData.genType === "1") {
+            this.genInterface('buildPath', editData.tableName).then(res => {
+              if(res.data.code == 200){
+                this.$message.success("成功生成到自定义路径：" + editData.genPath);
+              }else{
+                this.$message.error(res.data.msg);
+              }
+            }).catch(err => {
+              this.$message.error('服务器异常');
+            });
+          } else {
+            this.$download.zip("/tool/gen/batchGenCode?tables=" + editData.tableName, "gen_"+new Date().getTime());
+          }
           break;
       }
     },
@@ -783,55 +745,6 @@ export default defineComponent({
       var form = this.$refs["topForm"];
       var data = form.getFormData().formData;
       this.getList(data);
-    },
-
-    // 表格数据  新增 / 修改
-    submitConfig: function (state) {
-      if (state) {
-        var form = this.$refs["rowForm"];
-        // 校验表单数据
-        form.formValidation().then((res) => {
-          // console.log(res)
-          if (res.state) {
-            var queryParams = {
-              postId: undefined,
-              postCode: undefined,
-              postName: undefined,
-              postSort: 0,
-              status: "0",
-              remark: undefined,
-            };
-            // 合并表单项内容
-            queryParams = Object.assign(queryParams, res.form);
-            var loading = this.$loading({
-              background: "rgba(0,0,0,0.0)",
-              size: 166,
-              iconColor: "#00678C",
-            });
-            this.setPost(this.rowConfig.type, queryParams)
-              .then((requestRes) => {
-                loading.close();
-                if (requestRes.data.code == 200) {
-                  this.$message.success(
-                    this.rowConfig.type == "add" ? "添加成功" : "保存成功"
-                  );
-                  this.rowConfig.show = false;
-                  var form = this.$refs["topForm"];
-                  var data = form.getFormData().formData;
-                  this.getList(data);
-                } else {
-                  this.$message.error(requestRes.data.msg);
-                }
-              })
-              .catch((err) => {
-                loading.close();
-                this.$message.error("服务器异常");
-              });
-          }
-        });
-      } else {
-        this.rowConfig.show = false;
-      }
     },
 
     // 导入表格查询  
