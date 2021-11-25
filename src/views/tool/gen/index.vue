@@ -737,7 +737,7 @@ export default defineComponent({
           break;
         case 'build':
           var editData = item;
-          console.log(editData)
+          // console.log(editData)
           if(editData.genType === "1") {
             this.genInterface('buildPath', item.tableName).then(res => {
               if(res.data.code == 200){
@@ -749,7 +749,7 @@ export default defineComponent({
               this.$message.error('服务器异常');
             });
           } else {
-            this.$download.zip("/tool/gen/batchGenCode?tables=" + item.tableName, "alp");
+            this.$download.zip("/tool/gen/batchGenCode?tables=" + item.tableName, "gen_"+new Date().getTime());
           }
           break;
       }
