@@ -429,7 +429,6 @@ export default defineComponent({
   created: function () {
     this.getList();
   },
-  setup() {},
   methods: {
     // 获取列表
     getList: function (params) {
@@ -513,6 +512,9 @@ export default defineComponent({
         case 'sync':
           // 删除
           return this.$axios.get('/tool/gen/synchDb/'+data);
+        case 'buildPath':
+          // 生成  路径
+          return this.$axios.get('/tool/gen/genCode/' + data);
       }
     },
 
@@ -733,6 +735,23 @@ export default defineComponent({
             onCancel() {},
           });
           break;
+        case 'build':
+          var editData = item;
+          console.log(editData)
+          if(editData.genType === "1") {
+            this.genInterface('buildPath', item.tableName).then(res => {
+              if(res.data.code == 200){
+                this.$message.success("成功生成到自定义路径：" + item.genPath);
+              }else{
+                this.$message.error(res.data.msg);
+              }
+            }).catch(err => {
+              this.$message.error('服务器异常');
+            });
+          } else {
+            this.$download.zip("/tool/gen/batchGenCode?tables=" + item.tableName, "alp");
+          }
+          break;
       }
     },
 
@@ -885,8 +904,6 @@ export default defineComponent({
   components: {
     editPopup,
   }
-
-
 });
 </script>
 <style lang="less">

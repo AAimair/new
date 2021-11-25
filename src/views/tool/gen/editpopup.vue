@@ -391,7 +391,18 @@ export default defineComponent({
             for(var k in this.sub){
               this.sub[k] = res.data.data.info[k]
             }
+            // 父级菜单
+            this.parentMenuId = res.data.data.info.parentMenuId
             this.updateKey++;
+
+            this.buildForm.form[7].hidden = res.data.data.info.genType == '0'?true: false;
+            this.buildForm.form[8].hidden = true;
+            this.buildForm.form[9].hidden = true;
+            if(res.data.data.info.tplCategory=='tree'){
+              this.buildForm.form[8].hidden = false;
+            }else if(res.data.data.info.tplCategory=='sub'){
+              this.buildForm.form[9].hidden = false;
+            }
 
             // 所有表及字段
             this.tables = res.data.data.tables;
@@ -481,11 +492,15 @@ export default defineComponent({
     },
     submitConfig: function(state){
       // console.log(this.visible, this.callBack, this.buildForm);
-      console.log(state, this.tableData);
+      // console.log(state, this.tableData);
       if(state){
         var template = {
-          parentMenuId: this.superior,
+          tableId: this.data.tableId,
           columns: this.tableData,
+          params: {
+            ...this.tree,
+            parentMenuId: this.superior,
+          }
         }
         // 基本信息
         var basicForm = this.$refs['basicForm'];
@@ -495,7 +510,7 @@ export default defineComponent({
         Promise.all([basicForm.formValidation(), buildForm.formValidation()]).then(res => {
           // console.log(res);
           if(res[0].state && res[0].state){
-            var params = Object.assign(template, this.tree, this.sub, res[0].form, res[1].form);
+            var params = Object.assign(template, this.sub, res[0].form, res[1].form);
 
             var loading = this.$loading({
               background: "rgba(0,0,0,0.0)",

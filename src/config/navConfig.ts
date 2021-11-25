@@ -34,7 +34,7 @@ const monitorCache = () => import("../views/monitor/cache/index.vue");
 const toolGen = () => import("../views/tool/gen/index.vue");
 
 //------- 系统工具 -----------//
-const toolSwagger = () => import("../views/tool/swagger/index.vue");
+// const toolSwagger = () => import("../views/tool/swagger/index.vue");
 
 // 组件模块列表
 const componentMap = {
@@ -53,7 +53,7 @@ const componentMap = {
   cache: monitorCache,
   dict: systemDict,
   gen: toolGen,
-  swagger: toolSwagger,
+  // swagger: toolSwagger,
 }
 
 // 模块图片
