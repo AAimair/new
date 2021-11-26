@@ -392,7 +392,10 @@
       </template>
     
       <div class="popupMain">
-        <cron ref="cronRef"></cron>
+        <alpCron
+          :key="cronDialogOptions.key"
+          v-model:data="cronDialogOptions.cronData"/>
+<!--        <cron ref="cronRef"></cron>-->
       </div>
     </a-modal>
     
@@ -432,7 +435,6 @@ import {
   bottomViewOptions
 } from './formOptions.js';
 import {ExclamationCircleOutlined} from "@ant-design/icons-vue";
-import cron from '@/components/cron/index.vue';
 
 export default defineComponent({
   name: 'monitorJob',
@@ -512,7 +514,9 @@ export default defineComponent({
       },
       // cron 表达式弹窗
       cronDialogOptions: {
-        show: false
+        show: false,
+        key: 0,
+        cronData: '',
       }
     }
   },
@@ -604,9 +608,6 @@ export default defineComponent({
       bottomTableColumns,
       bottomViewOptions
     }
-  },
-  components: {
-    cron
   },
   created() {
     this.getTopTableData();
@@ -734,9 +735,13 @@ export default defineComponent({
           case 'add': // 添加
             this.topDialogOptions.mode = 'add';
             this.topDialogOptions.show = true;
+            this.cronDialogOptions.key ++;
+            this.cronDialogOptions.cronData = '';
             break;
           case 'edit': // 编辑
             this.topDialogOptions.data = data;
+            this.cronDialogOptions.key ++;
+            this.cronDialogOptions.cronData = data['cronExpression'].value;
             this.topDialogOptions.mode = 'update';
             this.topDialogOptions.show = true;
             break;
@@ -968,7 +973,7 @@ export default defineComponent({
     cronConfirm: function (type) {
       if (type){
         this.topDialogOptions.key ++;
-        const cron = this.$refs.cronRef.getCorn();
+        const cron = this.cronDialogOptions.cronData;
         this.topDialogOptions.data.cronExpression = {value: cron};
       }
       this.cronDialogOptions.show = false;

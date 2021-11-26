@@ -153,7 +153,7 @@
     <a-modal
       v-model:visible="dialogOptions.show"
       :title="dialogOptions.mode === 'add' ? '添加参数': '修改参数'"
-      :width="800"
+      :width="900"
       :closable="false"
     >
       <template #footer>
@@ -177,7 +177,7 @@
         >
           <template #noticeContent>
             <span>内容: </span>
-            <div id="richEditor"></div>
+            <textarea id="richEditor" name="richEditor"></textarea>
           </template>
         </alpFormGroup>
       </div>
@@ -193,7 +193,13 @@ import {
   dialogFormOptions as dialogForm
 } from "@/views/system/notice/formOptions";
 import {ExclamationCircleOutlined} from "@ant-design/icons-vue";
-import ClassicEditor from './ckeditor5-build-classic/ckeditor';
+// import ClassicEditor from './ckeditor5-build-classic/ckeditor';
+
+declare global {
+  interface Window {
+    CKEDITOR: any;
+  }
+}
 
 export default defineComponent({
   name: 'systemNotice',
@@ -394,7 +400,7 @@ export default defineComponent({
           this.dialogOptions.show = true;
           // 初始化 富文本
           this.$nextTick(() => {
-            this.initRichText(document.body.querySelector('#richEditor'), null)
+            this.initRichText(null)
           })
           break;
         case 'edit':
@@ -412,7 +418,7 @@ export default defineComponent({
           this.dialogOptions.show = true;
           // 初始化 富文本
           this.$nextTick(() => {
-            this.initRichText(document.getElementById('richEditor'), rowData.noticeContent)
+            this.initRichText(rowData.noticeContent)
           })
           break;
         case 'delete':
@@ -487,12 +493,14 @@ export default defineComponent({
             this.dialogOptions.loading = true;
             // 表单数据
             const {formData} = form.getFormData();
-            formData.noticeContent = this.richHandle?.().getData();
+            // 富文本内容
+            formData.noticeContent = this.richHandle.getData();
             this.sendRequest(this.dialogOptions.mode, formData).then(res => {
               this.dialogOptions.loading = false;
               if (res.data.code === 200) {
                 this.dialogOptions.show = false;
                 this.getTableData();
+                this.$message.success(this.dialogOptions.mode === 'add'? '添加成功':'修改成功');
               } else {
                 this.$message.error(res.data.msg);
               }
@@ -507,26 +515,34 @@ export default defineComponent({
       }
     },
     // 初始化富文本
-    initRichText: function (dom, data, repeat = 0) {
-      if (!dom) {
-        // 循环超过两次 退出
-        if (repeat > 1) return;
-        // 没有获取到容器时， 下次事件循环时再次初始化
-        this.$nextTick(() => {
-          this.initRichText(document.body.querySelector('#richEditor'), data, ++repeat);
-        })
-      } else {
-        // 初始化 富文本
-        ClassicEditor.create(dom, {}).then(editor => {
-          // 赋值
-          editor.setData(data ? data : '');
-          this.richHandle = () => {
-            return editor
-          };
-        }).catch(() => {
-          console.log(dom, data, repeat)
-        })
+    initRichText: function (data) {
+      this.richHandle = window.CKEDITOR.replace( 'richEditor', {
+        width: '100%',
+        height: 300,
+        readonly: true
+      });
+      if (data){
+        this.richHandle.setData(data);
       }
+      // if (!dom) {
+      //   // 循环超过两次 退出
+      //   if (repeat > 1) return;
+      //   // 没有获取到容器时， 下次事件循环时再次初始化
+      //   this.$nextTick(() => {
+      //     this.initRichText(document.body.querySelector('#richEditor'), data, ++repeat);
+      //   })
+      // } else {
+        // 初始化 富文本
+        // ClassicEditor.create(dom, {}).then(editor => {
+        //   // 赋值
+        //   editor.setData(data ? data : '');
+        //   this.richHandle = () => {
+        //     return editor
+        //   };
+        // }).catch(() => {
+        //   console.log(dom, data, repeat)
+        // })
+      // }
     }
   }
 })
