@@ -44,6 +44,32 @@ http.interceptors.request.use(
       sessionStorage['token'] = cookieToken;
       token = cookieToken;
     }
+    
+    console.log(config)
+    // get请求映射params参数
+    if (config.method === 'get' && config.params) {
+      let url = config.url + '?';
+      for (const propName of Object.keys(config.params)) {
+        const value = config.params[propName];
+        var part = encodeURIComponent(propName) + "=";
+        if (value !== null && typeof(value) !== "undefined") {
+          if (typeof value === 'object') {
+            for (const key of Object.keys(value)) {
+              if (value[key] !== null && typeof (value[key]) !== 'undefined') {
+                let params = propName + '[' + key + ']';
+                let subPart = encodeURIComponent(params) + '=';
+                url += subPart + encodeURIComponent(value[key]) + '&';
+              }
+            }
+          } else {
+            url += part + encodeURIComponent(value) + "&";
+          }
+        }
+      }
+      url = url.slice(0, -1);
+      config.params = {};
+      config.url = url;
+    }
 
     if(excludeTokenUrls.indexOf(config.url)==-1){
       config.headers.Authorization = 'Bearer '+token;

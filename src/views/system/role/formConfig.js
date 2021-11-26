@@ -219,8 +219,38 @@ const dataLimitForm = {
   ]
 }
 
+const topAllotUserForm = {
+  titleShow: false, //  表单块标题是否隐藏
+  labelAlign: "left", // label对齐方式 left|right,
+  layout: "inline", // 表单布局 'horizontal'|'vertical'|'inline'  
+  hideRequiredMark: true, // 是否隐藏必选标记
+  // a_attr: {}, //  原antd组件属性
+  colon: false, // layout = horizontal 有效 label后是否有冒号
+  // gutter: 10, // 表单块间隔
+  form: [
+    {
+      label: "用户名称",
+      name: 'userName',
+      placeholder: '请输入用户名称',
+      value: '',
+      type: 'input', // input/select/dateMonth/dateWeek/dateTime/radioGroup/treeSelect/checkboxGroup/custom
+    },{
+      label: "手机号码",
+      name: 'phonenumber',
+      placeholder: '请输入手机号码',
+      value: '',
+      type: 'input', // input/select/dateMonth/dateWeek/dateTime/radioGroup/treeSelect/checkboxGroup/custom
+    },{
+      type: 'custom', // input/select/dateMonth/dateWeek/dateTime/radioGroup/treeSelect/checkboxGroup/custom
+      class: 'btns',
+      soltName: 'topBtns'
+    }
+  ]
+}
+
 export default {
   topForm,
   tableRowForm,
   dataLimitForm,
+  topAllotUserForm,
 }
