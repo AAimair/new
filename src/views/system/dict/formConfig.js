@@ -33,13 +33,13 @@ const topSearchForm = {
     },{
       label: "创建时间",
       class: "createStartTime",
-      name: 'beginTime',
+      name: 'params[beginTime]',
       format: 'YYYY-MM-DD',
       value: '',
       type: 'dateTime', // input/select/dateMonth/dateWeek/dateTime/radioGroup/treeSelect/checkboxGroup/custom
     },{
       label: "-",
-      name: 'endTime',
+      name: 'params[endTime]',
       format: 'YYYY-MM-DD',
       value: '',
       type: 'dateTime', // input/select/dateMonth/dateWeek/dateTime/radioGroup/treeSelect/checkboxGroup/custom

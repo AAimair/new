@@ -34,13 +34,13 @@ const searchFormOptions = {
     }, {
       label: "创建时间",
       class: "createStartTime",
-      name: 'beginTime',
+      name: 'params[beginTime]',
       format: 'YYYY-MM-DD',
       value: '',
       type: 'dateTime',
     }, {
       label: "-",
-      name: 'endTime',
+      name: 'params[endTime]',
       format: 'YYYY-MM-DD',
       value: '',
       type: 'dateTime',

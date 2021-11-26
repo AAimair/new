@@ -12,7 +12,7 @@
             <!-- <alpIcon :icon='' v-if="topFormShrink" />
             <FullscreenExitOutlined v-else /> -->
           </div>
-          <span>岗位列表</span>
+          <span>角色列表</span>
         </div>
         <div class="tableBtn">
           <a-button type="primary" size="small" @click="topSearch('search')">

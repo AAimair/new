@@ -45,7 +45,6 @@ http.interceptors.request.use(
       token = cookieToken;
     }
     
-    console.log(config)
     // get请求映射params参数
     if (config.method === 'get' && config.params) {
       let url = config.url + '?';
