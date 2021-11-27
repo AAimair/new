@@ -10,12 +10,6 @@ const mainForm = {
   gutter: 10, // 表单块间隔
   form: [
     {
-      // 上级菜单
-      type: 'custom',
-      soltName: 'menuTree',
-      span: 12,
-      offset: 3,
-    },{
       label: "菜单类型",
       name: 'menuType',
       value: '',
@@ -33,6 +27,12 @@ const mainForm = {
         // { label: '按钮', value: 'F' },
       ],
       type: 'radioGroup', // input/select/dateMonth/dateWeek/dateTime/radioGroup/treeSelect/checkboxGroup/custom/textarea 
+    },{
+      // 上级菜单
+      type: 'custom',
+      soltName: 'menuTree',
+      span: 12,
+      offset: 3,
     },{
       // 菜单图标
       type: 'custom',
@@ -76,6 +76,16 @@ const mainForm = {
         type: 'number'
       },
       type: 'input', // input/select/dateMonth/dateWeek/dateTime/radioGroup/treeSelect/checkboxGroup/custom/textarea 
+    },
+    {
+      label: "目录描述",
+      name: 'remark',
+      hidden: true,
+      value: '',
+      hidden: true,
+      span: 12,
+      offset: 3,
+      type: 'input', // input/select/dateMonth/dateWeek/dateTime/radioGroup/treeSelect/checkboxGroup/custom/textarea 
     },{
       label: "是否外链",
       name: 'isFrame',
@@ -87,14 +97,15 @@ const mainForm = {
         { label: '否', value: '1' },
       ],
       change: function(data){
-        console.log(data)
+        // console.log(data)
+        data.form[8].hidden = data.value !== '0';
         // data.form[]
       },
       type: 'radioGroup', // input/select/dateMonth/dateWeek/dateTime/radioGroup/treeSelect/checkboxGroup/custom/textarea 
     },
     {
       label: "外链地址",
-      name: 'component',
+      name: 'remark',
       value: '',
       hidden: true,
       span: 12,

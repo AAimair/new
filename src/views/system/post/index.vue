@@ -50,9 +50,7 @@
         </div>
       </div>
       <div class="topSearchForm" :class="{ shrink: topFormShrink }">
-        <alpFormGroup ref="topForm" :options="topForm" :form_data="topFormData">
-          <template #topBtns> </template>
-        </alpFormGroup>
+        <alpFormGroup ref="topForm" :options="topForm" :form_data="topFormData"></alpFormGroup>
       </div>
     </div>
     <div class="tableView">
@@ -89,7 +87,7 @@
           :row-selection="tableSelection"
           :pagination="false"
           size="small"
-          rowKey="postId"
+          :rowKey="majorKey"
           :scroll="{ y: tableViewHeight - 40 }"
           bordered
         >
@@ -169,6 +167,7 @@ export default defineComponent({
   name: "systemPostPage",
   data: function () {
     return {
+      majorKey: 'postId',
       topForm: formConfig.topForm,
       topFormShrink: false,
       topFormHeight: 0,
@@ -228,6 +227,14 @@ export default defineComponent({
       tableViewHeight: 200,
       tableRowForm: formConfig.tableRowForm,
       tableRowFormData: ref({}),
+      formTemplate: {
+        postId: undefined,
+        postCode: undefined,
+        postName: undefined,
+        postSort: 0,
+        status: "0",
+        remark: undefined
+      },
       rowConfig: {
         show: false,
         type: "edit", // add/edit
@@ -284,7 +291,7 @@ export default defineComponent({
     },
 
     // 新增/修改/删除/导出 岗位数据
-    setPost: function (type, data) {
+    genInterface: function (type, data) {
       switch (type) {
         case "add":
           // 新增
@@ -321,37 +328,27 @@ export default defineComponent({
           // 新增
           this.rowConfig.show = true;
           this.rowConfig.type = "add";
-          this.tableRowFormData = {};
+          for(var k in this.formTemplate){
+            this.tableRowFormData[k] = {
+              value: this.formTemplate[k]
+            }
+          }
+          // this.tableRowFormData = {};
           break;
         case "edit":
           // 修改
           var editData = this.rowConfig.data[0];
-          this.tableRowFormData = {
-            postCode: {
-              value: editData.postCode,
-            },
-            postId: {
-              value: editData.postId,
-            },
-            postName: {
-              value: editData.postName,
-            },
-            postSort: {
-              value: editData.postSort,
-            },
-            remark: {
-              value: editData.remark,
-            },
-            status: {
-              value: editData.status,
-            },
-          };
+          for(var k in this.formTemplate){
+            this.tableRowFormData[k] = {
+              value: editData[k]||this.formTemplate[k]
+            }
+          }
           this.rowConfig.type = "edit";
           this.rowConfig.show = true;
           break;
         case "delete":
           // 删除
-          var editData = this.rowConfig.data.map((item) => item.postId);
+          var editData = this.rowConfig.data.map((item) => item[this.majorKey]);
           var that = this;
           this.$confirm({
             title: () => "删除",
@@ -361,7 +358,7 @@ export default defineComponent({
               return new Promise((resolve) => {
                 // 删除
                 that
-                  .setPost("delete", editData)
+                  .genInterface("delete", editData)
                   .then((res) => {
                     resolve(true);
                     if (res.data.code == 200) {
@@ -397,26 +394,11 @@ export default defineComponent({
       switch (type) {
         case "edit":
           // 修改
-          this.tableRowFormData = {
-            postCode: {
-              value: item.postCode,
-            },
-            postId: {
-              value: item.postId,
-            },
-            postName: {
-              value: item.postName,
-            },
-            postSort: {
-              value: item.postSort,
-            },
-            remark: {
-              value: item.remark,
-            },
-            status: {
-              value: item.status,
-            },
-          };
+          for(var k in this.formTemplate){
+            this.tableRowFormData[k] = {
+              value: item[k]||this.formTemplate[k]
+            }
+          }
           this.rowConfig.type = "edit";
           this.rowConfig.show = true;
           break;
@@ -431,7 +413,7 @@ export default defineComponent({
               return new Promise((resolve) => {
                 // 删除
                 that
-                  .setPost("delete", item.postId)
+                  .genInterface("delete", item[this.majorKey])
                   .then((res) => {
                     resolve(true);
                     if (res.data.code == 200) {
@@ -467,7 +449,7 @@ export default defineComponent({
       // console.log("selectedRowKeys changed: ", selectedRowKeys);
       var selData = <any>[];
       this.tableData.forEach((one) => {
-        if (selectedRowKeys.indexOf(one.postId) != -1) {
+        if (selectedRowKeys.indexOf(one[this.majorKey]) != -1) {
           selData.push({
             ...one,
           });
@@ -507,7 +489,7 @@ export default defineComponent({
               size: 166,
               iconColor: "#00678C",
             });
-            this.setPost(this.rowConfig.type, queryParams)
+            this.genInterface(this.rowConfig.type, queryParams)
               .then((requestRes) => {
                 loading.close();
                 if (requestRes.data.code == 200) {

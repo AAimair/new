@@ -73,7 +73,7 @@
             <div class="menuTree">
               <div class="label">上级菜单</div>
               <div class="setInput" :class="{ err: formParentIdErr }">
-                <a-tree-select
+                <!-- <a-tree-select
                   v-model:value="formParentId"
                   style="width: 100%"
                   show-search
@@ -84,7 +84,16 @@
                   :replaceFields="treeField"
                   @change="checkDeptParentId"
                 >
-                </a-tree-select>
+                </a-tree-select> -->
+
+                <a-select
+                  v-model:value="formParentId"
+                  label-in-value
+                  style="width: 120px"
+                  :options="options"
+                  @change="checkDeptParentId"
+                >
+                </a-select>
                 <span class="errMsg">上级菜单不能为空</span>
               </div>
             </div>
@@ -198,8 +207,8 @@ export default defineComponent({
           if (res.data.code == 200) {
             var treeData = this.parseTreeData(res.data.data, this.majorKey);
             this.treeData = treeData;
-            this.oneDimData = res.data.data;
-            this.expandedKeys = res.data.data.map(o => o[this.majorKey]);
+            this.oneDimData = res.data.data.filter(o => o.menuType!='F');
+            this.expandedKeys = this.oneDimData.map(o => o[this.majorKey]);
             // 部门下拉树
             // console.log(treeData);
             this.showformTree[0].children = treeData;
@@ -218,18 +227,20 @@ export default defineComponent({
         map = {};
       if (Array.isArray(data)) {
         data.forEach((one) => {
-          var template = {
-            ...one,
-            children: [],
-          };
-          if (!map[one.parentId]) {
-            res.push(template);
-          } else {
-            map[one.parentId].children.push(template);
-          }
-
-          if (!map[one[major]]) {
-            map[one[major]] = template;
+          if(['M', 'C'].indexOf(one.menuType)!=-1){
+            var template = {
+              ...one,
+              children: [],
+            };
+            if (!map[one.parentId]) {
+              res.push(template);
+            } else {
+              map[one.parentId].children.push(template);
+            }
+  
+            if (!map[one[major]]) {
+              map[one[major]] = template;
+            }
           }
         });
       }
@@ -339,7 +350,7 @@ export default defineComponent({
 
     // 菜单类型 变更
     menuTypeChange: function(data){
-      console.log(data);
+      // console.log(data);
       switch(data.value){
         case 'M':
           // icon
