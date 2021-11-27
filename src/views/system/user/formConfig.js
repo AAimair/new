@@ -83,7 +83,7 @@ const tableRowForm = {
       required: true,
       message: '用户昵称不能为空',
     }],
-    type: 'select', // input/select/dateMonth/dateWeek/dateTime/radioGroup/treeSelect/checkboxGroup/custom/textarea 
+    type: 'input', // input/select/dateMonth/dateWeek/dateTime/radioGroup/treeSelect/checkboxGroup/custom/textarea 
   }, {
     // label: "归属部门",
     soltName: 'dept',
@@ -214,7 +214,57 @@ const tableRowForm = {
   }]
 }
 
+const resetPwdForm = {
+  titleShow: false, //  表单块标题是否隐藏
+  labelAlign: "right", // label对齐方式 left|right,
+  layout: "horizontal", // 表单布局 'horizontal'|'vertical'|'inline'  
+  hideRequiredMark: false, // 是否隐藏必选标记
+  a_attr: {
+    labelCol: {
+      style: {
+        width: '70px'
+      }
+    }
+  }, //  原antd组件属性
+  colon: false, // layout = horizontal 有效 label后是否有冒号
+  // gutter: 10, // 表单块间隔
+  form: [{
+    label: "userId",
+    name: 'userId',
+    value: null,
+    hidden: true,
+    span: 24,
+    type: 'input', // input/select/dateMonth/dateWeek/dateTime/radioGroup/treeSelect/checkboxGroup/custom/textarea 
+  },{
+    span: 24,
+    type: 'custom',
+    soltName: 'userName'
+  },{
+    label: "用户密码",
+    name: 'password',
+    placeholder: '请输入用户密码',
+    value: '',
+    span: 24,
+    rule: [{
+        required: true,
+        message: '用户密码不能为空',
+      },
+      {
+        min: 5,
+        max: 20,
+        message: '用户密码长度必须介于 5 和 20 之间',
+        trigger: ['change']
+      }
+    ],
+    a_attr: {
+      type: 'password'
+    },
+    type: 'input', // input/select/dateMonth/dateWeek/dateTime/radioGroup/treeSelect/checkboxGroup/custom/textarea 
+  }]
+}
+
 export default {
   topForm,
   tableRowForm,
+  resetPwdForm,
 }

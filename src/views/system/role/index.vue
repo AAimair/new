@@ -463,7 +463,7 @@
 <script lang="ts">
 import { defineComponent, createVNode, ref } from "vue";
 import { ExclamationCircleOutlined } from "@ant-design/icons-vue";
-import fromConfig from "./formConfig.js";
+import formConfig from "./formConfig.js";
 
 export default defineComponent({
   name: "systemRolePage",
@@ -472,7 +472,7 @@ export default defineComponent({
       majorKey: "roleId",
       // 子系统下拉项
       subSysOpt: [],
-      topForm: fromConfig.topForm,
+      topForm: formConfig.topForm,
       topFormShrink: false,
       topFormHeight: 0,
       topFormData: {},
@@ -528,7 +528,7 @@ export default defineComponent({
         },
       ],
       tableViewHeight: 200,
-      tableRowForm: fromConfig.tableRowForm,
+      tableRowForm: formConfig.tableRowForm,
       tableRowFormData: ref({}),
       rowConfig: {
         show: false,
@@ -540,7 +540,7 @@ export default defineComponent({
         type: "edit", // add/edit
         data: null,
       },
-      dataLimitForm: fromConfig.dataLimitForm,
+      dataLimitForm: formConfig.dataLimitForm,
       dataLimitFormData: ref({}),
 
       // 菜单树 数据
@@ -562,7 +562,7 @@ export default defineComponent({
       },
 
       // 用户授权顶部查询表单
-      topAllotUserForm: fromConfig.topAllotUserForm,
+      topAllotUserForm: formConfig.topAllotUserForm,
       allotUserConfig: {
         roleId: "",
         show: false,
@@ -661,7 +661,7 @@ export default defineComponent({
             value: o.subsysId,
           };
         });
-        fromConfig.tableRowForm.form[1].options = this.subSysOpt;
+        formConfig.tableRowForm.form[1].options = this.subSysOpt;
       }
     });
     // 获取菜单下拉树

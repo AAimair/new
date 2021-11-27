@@ -344,7 +344,7 @@ export default defineComponent({
           },
         ],
         tableViewHeight: 200,
-        // tableRowForm: fromConfig.tableRowForm,
+        // tableRowForm: formConfig.tableRowForm,
         tableRowFormData: {},
         // rowConfig: {
         //   show: false,
@@ -421,7 +421,7 @@ export default defineComponent({
           },
         ],
         tableViewHeight: 200,
-        // tableRowForm: fromConfig.tableRowForm,
+        // tableRowForm: formConfig.tableRowForm,
         tableRowFormData: {},
         selRow: {
           // show: false,

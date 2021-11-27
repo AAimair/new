@@ -232,8 +232,7 @@
 <script lang="ts">
 import { defineComponent, createVNode, ref } from "vue";
 import { ExclamationCircleOutlined } from "@ant-design/icons-vue";
-import fromConfig from "./formConfig.js";
-
+import formConfig from "./formConfig.js";
 
 // highlight
 import hljs from 'highlight.js';
@@ -257,7 +256,7 @@ export default defineComponent({
   name: "toolGenPage",
   data: function () {
     return {
-      topForm: fromConfig.topSearchForm,
+      topForm: formConfig.topSearchForm,
       topFormShrink: false,
       topFormHeight: 0,
       topFormData: {},
@@ -319,7 +318,7 @@ export default defineComponent({
         },
       ],
       tableViewHeight: 200,
-      tableRowForm: fromConfig.tableRowForm,
+      tableRowForm: formConfig.tableRowForm,
       tableRowFormData: ref({}),
       rowConfig: {
         show: false,
@@ -340,7 +339,7 @@ export default defineComponent({
       importTable: {
         show: false,
         title: "导入表",
-        search: fromConfig.importSearchForm,
+        search: formConfig.importSearchForm,
         columns: [
           {
             dataIndex: "tableName",

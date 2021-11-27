@@ -137,7 +137,7 @@
                   /></a-button>
                   <template #overlay>
                     <a-menu @click="(common) => itemOptions(common.key, row)">
-                      <a-menu-item key="dataLimit">重置密码</a-menu-item>
+                      <a-menu-item key="resetPwd">重置密码</a-menu-item>
                       <!-- <a-menu-item key="allotUse">分配角色</a-menu-item> -->
                     </a-menu>
                   </template>
@@ -207,13 +207,42 @@
           </alpFormGroup>
         </div>
       </a-modal>
+      <!-- 重置密码 弹窗 -->
+      <a-modal
+        v-model:visible="resetPwdConfig.show"
+        title="重置密码"
+        :width="350"
+        class="pwdEditPopup"
+        :closable="false"
+      >
+        <template #footer>
+          <a-button key="back" @click="submitPwd(false)">取消</a-button>
+          <a-button
+            key="submit"
+            type="primary"
+            @click="submitPwd(true)"
+            >保存</a-button
+          >
+        </template>
+        <div class="popupMain">
+          <alpFormGroup
+            v-if="resetPwdConfig.show"
+            ref="resetPwdForm"
+            :options="resetPwdConfig.resetPwdForm"
+          >
+            <template #userName>
+              <span class="resetUserName">请输入"{{resetPwdConfig.data.userName}}"的新密码</span>
+            </template>
+          </alpFormGroup>
+        </div>
+      </a-modal>
     </div>
   </div>
 </template>
 <script lang="ts">
 import { defineComponent, createVNode, ref } from "vue";
 import { ExclamationCircleOutlined } from "@ant-design/icons-vue";
-import fromConfig from "./formConfig.js";
+import formConfig from "./formConfig.js";
 
 export default defineComponent({
   name: "systemUserPage",
@@ -232,7 +261,7 @@ export default defineComponent({
       },
       selDept: [],
 
-      topForm: fromConfig.topForm,
+      topForm: formConfig.topForm,
       topFormShrink: false,
       topFormHeight: 0,
       topFormData: {},
@@ -295,13 +324,19 @@ export default defineComponent({
         },
       ],
       tableViewHeight: 200,
-      tableRowForm: fromConfig.tableRowForm,
+      tableRowForm: formConfig.tableRowForm,
       tableRowFormData: ref({}),
       deptId: '',
       rowConfig: {
         show: false,
         type: "edit", // add/edit
         data: [],
+      },
+
+      resetPwdConfig: {
+        show: false,
+        data: null,
+        resetPwdForm: formConfig.resetPwdForm,
       },
 
       majorKey: "userId",
@@ -346,6 +381,7 @@ export default defineComponent({
             this.treeData = treeData;
             this.oneDimData = res.data.data;
             this.expandedKeys = res.data.data.map((o) => o.deptId);
+            this.selDept = [treeData[0].deptId]
           } else {
             this.$message.error(res.data.msg);
           }
@@ -394,8 +430,10 @@ export default defineComponent({
           break;
         }
       }
-
-      console.log(targetNodeData);
+      // 获取用户列表
+      var form = this.$refs["topForm"];
+      var data = form.getFormData().formData;
+      this.getList(data);
     },
 
     // 获取岗位/角色 下拉列表
@@ -419,10 +457,8 @@ export default defineComponent({
               ...o
             }
           });
-
-          fromConfig.tableRowForm.form[9].options = posts;
-          fromConfig.tableRowForm.form[10].options = roles;
-
+          formConfig.tableRowForm.form[9].options = posts;
+          formConfig.tableRowForm.form[10].options = roles;
         }
       });
     },
@@ -430,7 +466,7 @@ export default defineComponent({
     // 获取列表
     getList: function (params) {
       var queryParams = {
-        deptId: undefined,
+        deptId: this.selDept[0]||undefined,
         pageNum: this.pagination.current,
         pageSize: this.pagination.pageSize,
       };
@@ -507,7 +543,12 @@ export default defineComponent({
           // 新增
           this.rowConfig.show = true;
           this.rowConfig.type = "add";
-          this.tableRowFormData = {};
+          for (var k in this.formTemplate) {
+            this.tableRowFormData[k] = {
+              value: this.formTemplate[k],
+            };
+          }
+          this.deptId = this.selDept[0];
           break;
         case "edit":
           // 修改
@@ -518,7 +559,7 @@ export default defineComponent({
               for (var k in this.formTemplate) {
                 var defValue = res.data.data[k];
                 if(['postIds', 'roleIds'].indexOf(k)!=-1){
-                  defValue = res.data[k];
+                  defValue = res.data[k].map(o => ''+o);
                 }
                 this.tableRowFormData[k] = {
                   value: defValue || this.formTemplate[k],
@@ -582,7 +623,7 @@ export default defineComponent({
               for (var k in this.formTemplate) {
                 var defValue = res.data.data[k];
                 if(['postIds', 'roleIds'].indexOf(k)!=-1){
-                  defValue = res.data[k];
+                  defValue = res.data[k].map(o => ''+o);
                 }
                 this.tableRowFormData[k] = {
                   value: defValue || this.formTemplate[k],
@@ -637,6 +678,11 @@ export default defineComponent({
             onCancel() {},
           });
           break;
+        case "resetPwd":
+          // 重置密码
+          this.resetPwdConfig.data = item;
+          this.resetPwdConfig.show = true;
+          break;
       }
     },
     // table行选中事件
@@ -668,15 +714,12 @@ export default defineComponent({
           // console.log(res)
           if (res.state) {
             var queryParams = {
-              postId: undefined,
-              postCode: undefined,
-              postName: undefined,
-              postSort: 0,
-              status: "0",
-              remark: undefined,
+              ...this.formTemplate
             };
             // 合并表单项内容
             queryParams = Object.assign(queryParams, res.form);
+            queryParams.deptId = this.deptId;
+            queryParams.password = this.$md5(queryParams.password.trim());
             var loading = this.$loading({
               background: "rgba(0,0,0,0.0)",
               size: 166,
@@ -707,6 +750,44 @@ export default defineComponent({
         this.rowConfig.show = false;
       }
     },
+    // 重置密码
+    submitPwd: function (state) {
+      if (state) {
+        var form = this.$refs["resetPwdForm"];
+        // 校验表单数据
+        form.formValidation().then((res) => {
+          console.log(res)
+          if (res.state) {
+            var queryParams = {
+              userId: this.resetPwdConfig.data.userId,
+              password: this.$md5(res.form.password.trim())
+            };
+            // 合并表单项内容
+            var loading = this.$loading({
+              background: "rgba(0,0,0,0.0)",
+              size: 166,
+              iconColor: "#00678C",
+            });
+            this.genInterface('resetPwd', queryParams)
+              .then((requestRes) => {
+                loading.close();
+                if (requestRes.data.code == 200) {
+                  this.$message.success("保存成功");
+                  this.resetPwdConfig.show = false;
+                } else {
+                  this.$message.error(requestRes.data.msg);
+                }
+              })
+              .catch((err) => {
+                loading.close();
+                this.$message.error("服务器异常");
+              });
+          }
+        });
+      } else {
+        this.resetPwdConfig.show = false;
+      }
+    },
   },
   mounted: function () {
     var moduleHeight = this.$el.clientHeight;
@@ -715,6 +796,11 @@ export default defineComponent({
     this.tableViewHeight = moduleHeight - (85 + 40 + this.topFormHeight);
   },
   created: function () {
+    this.$dict('sys_user_sex').then(res => {
+      // console.log('获取字典', res)
+      // console.log(formConfig, res)
+      formConfig.tableRowForm.form[7].options = res;
+    });
     // 获取部门树
     this.getDeptTree();
     // 获取角色/部门下拉列表
@@ -843,7 +929,7 @@ export default defineComponent({
     }
   }
 }
-
+.pwdEditPopup,
 .userEditPopup {
   .ant-modal-body {
     padding: 10px 20px;
@@ -877,6 +963,11 @@ export default defineComponent({
         overflow: auto;
       }
     }
+  }
+
+  .resetUserName{
+    height: 32px;
+    line-height: 32px;
   }
 }
 </style>

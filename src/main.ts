@@ -26,6 +26,26 @@ app.config.globalProperties.$echarts = echarts;
 app.config.globalProperties.$common = common;
 app.config.globalProperties.$loading = common.loading;
 app.config.globalProperties.$download = download;
+// 获取字典项
+app.config.globalProperties.$dict = function(dictKey){
+  return new Promise(resolve => {
+    requestConfig.http.get('/system/dict/data/type/' + dictKey).then(res => {
+      var resData = [];
+      if(res.data.code == 200){
+        resData = res.data.data.map(o => {
+          return {
+            value: o.dictCode,
+            label: o.dictLabel,
+            ...o
+          }
+        });
+      }
+      resolve(resData);
+    }).catch(err => {
+      resolve([]);
+    });
+  })
+}
 
 // md5
 app.config.globalProperties.$md5 = md5;

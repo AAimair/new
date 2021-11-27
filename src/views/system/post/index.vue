@@ -163,13 +163,13 @@
 <script lang="ts">
 import { defineComponent, createVNode, ref } from "vue";
 import { ExclamationCircleOutlined } from "@ant-design/icons-vue";
-import fromConfig from "./formConfig.js";
+import formConfig from "./formConfig.js";
 
 export default defineComponent({
   name: "systemPostPage",
   data: function () {
     return {
-      topForm: fromConfig.topForm,
+      topForm: formConfig.topForm,
       topFormShrink: false,
       topFormHeight: 0,
       topFormData: {},
@@ -226,7 +226,7 @@ export default defineComponent({
         },
       ],
       tableViewHeight: 200,
-      tableRowForm: fromConfig.tableRowForm,
+      tableRowForm: formConfig.tableRowForm,
       tableRowFormData: ref({}),
       rowConfig: {
         show: false,
