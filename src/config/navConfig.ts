@@ -21,6 +21,8 @@ const systemLogininfor = () => import("../views/system/logininfor/index.vue");
 const systemRolePage = () => import("../views/system/role/index.vue");
 // 用户管理
 const systemUserPage = () => import("../views/system/user/index.vue");
+// 菜单管理
+const systemMenuPage = () => import("../views/system/menu/index.vue");
 
 //------- 系统监控 -----------//
 // 在线用户
@@ -38,7 +40,7 @@ const monitorCache = () => import("../views/monitor/cache/index.vue");
 const toolGen = () => import("../views/tool/gen/index.vue");
 
 //------- 系统工具 -----------//
-// const toolSwagger = () => import("../views/tool/swagger/index.vue");
+const toolSwagger = () => import("../views/tool/swagger/index.vue");
 
 // 组件模块列表
 const componentMap = {
@@ -57,9 +59,10 @@ const componentMap = {
   cache: monitorCache,
   dict: systemDict,
   gen: toolGen,
-  // swagger: toolSwagger,
+  swagger: toolSwagger,
   role: systemRolePage,
-  user: systemUserPage
+  user: systemUserPage,
+  menu: systemMenuPage,
 }
 
 // 模块图片

@@ -501,7 +501,7 @@ export default defineComponent({
       this.tableViewHeight +=
         this.topFormHeight * (this.topFormShrink ? 1 : -1);
     },
-    // 新增/修改/删除/导出 岗位数据
+    // 新增/修改/删除/导出
     genInterface: function (type, data) {
       switch (type) {
         case 'get':
@@ -756,7 +756,6 @@ export default defineComponent({
         var form = this.$refs["resetPwdForm"];
         // 校验表单数据
         form.formValidation().then((res) => {
-          console.log(res)
           if (res.state) {
             var queryParams = {
               userId: this.resetPwdConfig.data.userId,

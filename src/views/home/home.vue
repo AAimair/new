@@ -149,6 +149,7 @@ export default defineComponent({
 
         // 需要直接开启的tabs页签
         var opanPath = this.$route.params.path;
+        opanPath = opanPath=='index'?'':opanPath;
 
         if (Array.isArray(this.navData)) {
           this.navData.forEach((one: any) => {
