@@ -118,12 +118,12 @@ const mainForm = {
       value: '',
       span: 12,
       offset: 3,
-      // rule: [
-      //   { 
-      //     required: true,
-      //     message: '模块关键字不能为空',
-      //   },
-      // ],
+      rule: [
+        { 
+          required: true,
+          message: '模块关键字不能为空',
+        },
+      ],
       type: 'input', // input/select/dateMonth/dateWeek/dateTime/radioGroup/treeSelect/checkboxGroup/custom/textarea 
     },
     {

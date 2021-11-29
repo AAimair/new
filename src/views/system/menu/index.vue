@@ -293,6 +293,7 @@ export default defineComponent({
     },
     // 树节点右键菜单
     treeNodeContextMenuClick: function (data, menuKey) {
+      // console.log(this.form)
       switch(menuKey){
         case 'addDirectory':
           // 添加同级目录
@@ -313,6 +314,8 @@ export default defineComponent({
           this.form.form[3].span = 21;
           // 目录描述
           this.form.form[6].hidden = false;
+          // 模块关键字
+          this.form.form[9].rule[0].required = false;
           // 其他隐藏
           for(var i=7;i<12;i++){
             this.form.form[i].hidden = true;
@@ -343,12 +346,14 @@ export default defineComponent({
           this.menuComponent = '';
           // 设置表单项配置
           // icon
-          this.form.form[2].hidden = false;
+          this.form.form[2].hidden = true;
           // pic
           this.form.form[3].hidden = false;
           this.form.form[3].span = 12;
           // 目录描述
           this.form.form[6].hidden = true;
+          // 模块关键字
+          this.form.form[9].rule[0].required = true;
           // 其他隐藏
           for(var i=7;i<12;i++){
             this.form.form[i].hidden = false;
@@ -378,12 +383,14 @@ export default defineComponent({
           this.menuComponent = '';
           // 设置表单项配置
           // icon
-          this.form.form[2].hidden = false;
+          this.form.form[2].hidden = true;
           // pic
           this.form.form[3].hidden = false;
           this.form.form[3].span = 12;
           // 目录描述
           this.form.form[6].hidden = true;
+          // 模块关键字
+          this.form.form[9].rule[0].required = true;
           // 其他隐藏
           for(var i=7;i<12;i++){
             this.form.form[i].hidden = false;
@@ -470,6 +477,8 @@ export default defineComponent({
           this.form.form[3].span = 21;
           // 目录描述
           this.form.form[6].hidden = true;
+          // 模块关键字
+          this.form.form[9].rule[0].required = false;
           // 其他隐藏
           for(var i=7;i<12;i++){
             this.form.form[i].hidden = true;
@@ -482,13 +491,15 @@ export default defineComponent({
         }else if(targetNodeData.menuType == 'C'){
           this.formType = 4;
           // icon
-          this.form.form[2].hidden = false;
+          this.form.form[2].hidden = true;
           // pic
           this.form.form[3].hidden = false;
           this.form.form[3].span = 12;
 
           // 目录描述
           this.form.form[6].hidden = true;
+          // 模块关键字
+          this.form.form[9].rule[0].required = true;
           // 其他隐藏
           for(var i=7;i<12;i++){
             this.form.form[i].hidden = false;
@@ -516,6 +527,7 @@ export default defineComponent({
     },
     // 菜单类型 变更
     menuTypeChange: function(data){
+      // console.log(data)
       switch(data.value){
         case 'M':
           // icon
@@ -525,6 +537,8 @@ export default defineComponent({
           data.form[3].span = 21;
           // 目录描述
           data.form[6].hidden = false;
+          // 模块关键字
+          data.formRules.path[0].required = false;
           // 其他隐藏
           for(var i=7;i<12;i++){
             data.form[i].hidden = true;
@@ -541,13 +555,15 @@ export default defineComponent({
           break;
         case 'C':
           // icon
-          data.form[2].hidden = false;
+          data.form[2].hidden = true;
           // pic
           data.form[3].hidden = false;
           data.form[3].span = 12;
 
           // 目录描述
           data.form[6].hidden = true;
+          // 模块关键字
+          data.formRules.path[0].required = true;
           // 其他隐藏
           for(var i=7;i<12;i++){
             data.form[i].hidden = false;
