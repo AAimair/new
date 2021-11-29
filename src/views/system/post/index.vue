@@ -413,7 +413,7 @@ export default defineComponent({
               return new Promise((resolve) => {
                 // 删除
                 that
-                  .genInterface("delete", item[this.majorKey])
+                  .genInterface("delete", item[that.majorKey])
                   .then((res) => {
                     resolve(true);
                     if (res.data.code == 200) {

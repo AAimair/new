@@ -77,6 +77,8 @@ const modulePics = {
   8: require('../assets/projectPic/8.png'),
 }
 
+export { modulePics };
+
 export default {
   // navConfg: navConfg,
   // 组件map

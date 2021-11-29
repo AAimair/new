@@ -46,8 +46,10 @@
                       treeNodeContextMenuClick(scope, menuKey)
                   "
                 >
-                  <a-menu-item key="add">添加</a-menu-item>
-                  <a-menu-item v-if="scope.parentId!=0 && scope.children.length==0" key="del">删除</a-menu-item>
+                  <a-menu-item v-if="scope.menuType=='M'" key="addDirectory">添加同级目录</a-menu-item>
+                  <a-menu-item v-if="scope.menuType=='M'" key="addSubMenu">添加子级菜单</a-menu-item>
+                  <a-menu-item v-if="scope.menuType=='C'" key="addSameMenu">添加同级菜单</a-menu-item>
+                  <a-menu-item key="del">删除</a-menu-item>
                 </a-menu>
               </template>
             </a-dropdown>
@@ -62,9 +64,9 @@
         type="warning"
       />
       <div class="formView" v-else>
-        <div class="tit">{{formType==1?'新增菜单':'修改菜单'}}</div>
+        <div class="tit">{{formTitMap[formType]}}</div>
         <alpFormGroup
-          ref="deptForm"
+          ref="menuForm"
           :options="form"
           :form_data="formData"
           :key="formUpdataKey"
@@ -73,39 +75,51 @@
             <div class="menuTree">
               <div class="label">上级菜单</div>
               <div class="setInput" :class="{ err: formParentIdErr }">
-                <!-- <a-tree-select
-                  v-model:value="formParentId"
-                  style="width: 100%"
-                  show-search
-                  allow-clear
-                  tree-default-expand-all
-                  :dropdown-style="{ maxHeight: '300px', overflow: 'auto' }"
-                  :tree-data="showformTree"
-                  :replaceFields="treeField"
-                  @change="checkDeptParentId"
-                >
-                </a-tree-select> -->
-
                 <a-select
                   v-model:value="formParentId"
-                  label-in-value
-                  style="width: 120px"
-                  :options="options"
+                  size="small"
+                  style="width: 100%"
+                  :disabled="menuType=='M'"
                   @change="checkDeptParentId"
                 >
+                  <a-select-option v-for="opt in showDirectoryOpt" :key="opt.value" :value="opt.value">{{opt.label}}</a-select-option>
                 </a-select>
                 <span class="errMsg">上级菜单不能为空</span>
               </div>
             </div>
           </template>
           <template #icon>
-            <div>
-              菜单图标
+            <div class="group">
+              <div class="label">菜单图标</div>
+              <div class="setInput">
+                <a-select
+                  v-model:value="menuIcon"
+                  size="small"
+                  style="width: 100%"
+                >
+                  <a-select-option v-for="opt in iconOpt" :key="opt.value" :value="opt.value">
+                    <div class="iconOpt">
+                      <component :is="dynamicIcon(opt.value)" /><span class="text">{{opt.label}}</span>
+                    </div>
+                  </a-select-option>
+                </a-select>
+              </div>
             </div>
           </template>
           <template #pic>
-            <div>
-              目录大图/模块展示图标
+            <div class="group">
+              <div class="label">{{menuType=='M'?'目录大图':'模块标志'}}</div>
+              <div class="setInput">
+                <a-radio-group :key="formUpdataKey" v-if="menuType=='M'" v-model:value="menuComponent">
+                  <ul class="modulePics">
+                    <li v-for="(pic,idx) in modulePics" :key="idx" @click="menuComponent=idx">
+                      <div class="img"><img :src="pic"></div>
+                      <a-radio :value="idx"></a-radio>
+                    </li>
+                  </ul>
+                </a-radio-group>
+                <a-input v-else v-model:value="menuComponent" placeholder="平台-Icon图标名称" />
+              </div>
             </div>
           </template>
           <template #formBtn>
@@ -125,7 +139,19 @@
 </template>
 <script lang="ts">
 import { defineComponent, createVNode, ref } from "vue";
-import { ExclamationCircleOutlined } from "@ant-design/icons-vue";
+import { modulePics } from "@/config/navConfig";
+import * as AntdIcon from "@ant-design/icons-vue";
+// antd  图标
+const iconOpt = <Array<any>>[];
+for(var k in AntdIcon){
+  if(['createFromIconfontCN', 'default', 'setTwoToneColor', 'getTwoToneColor'].indexOf(k) == -1){
+    iconOpt.push({
+      label: k,
+      value: k
+    })
+  }
+}
+
 // 部门表单配置
 import formConfig from "./formConfig.js";
 
@@ -135,6 +161,8 @@ export default defineComponent({
     return {
       majorKey: 'menuId',
 
+      iconOpt: iconOpt,
+      modulePics: modulePics,
       expandedKeys: [],
       searchTreeKey: "",
       autoExpandParent: true,
@@ -147,20 +175,16 @@ export default defineComponent({
         value: "menuId",
       },
       selDept: [],
-      // 上级部门下拉树
-      showformTree: [{
-        menuId: "0",
-        menuName: "根目录",
-        menuType: "M",
-        parentId: null,
-        parentName: null,
-        status: "0",
-        children: []
-      }],
-      formParentId: "",
+      // 菜单目标下拉选项
+      directoryOpt: [],
+      showDirectoryOpt: [],
       formParentIdErr: false,
       form: formConfig.mainForm,
       formData: {},
+      formParentId: "",
+      menuType: '',
+      menuIcon: '',
+      menuComponent: '',
       formTemplate: {
         component: undefined,
         icon: undefined,
@@ -177,10 +201,17 @@ export default defineComponent({
         perms: undefined,
         query: undefined,
         remark: undefined,
+        remark_link: undefined,
         status: "0",
         visible: "0",
       },
-      formType: 0,  //  0 没有选取部门数据/1 新增数据/2  修改数据
+      formType: 0,  //  0 没有选取部门数据    1 新增目录   2 修改目录   3 新增菜单   4 修改菜单  
+      formTitMap: {
+        1: '新增目录',
+        2: '修改目录',
+        3: '新增菜单',
+        4: '修改菜单',
+      },
       formUpdataKey: 1,
     };
   },
@@ -198,6 +229,11 @@ export default defineComponent({
     },
   },
   methods: {
+    // 动态加载 antd icon
+    dynamicIcon: function (icon) {
+      // console.log(icon);
+      return AntdIcon[icon] || "";
+    },
     // 获取部门树
     getDeptTree: function () {
       this.$axios
@@ -209,10 +245,13 @@ export default defineComponent({
             this.treeData = treeData;
             this.oneDimData = res.data.data.filter(o => o.menuType!='F');
             this.expandedKeys = this.oneDimData.map(o => o[this.majorKey]);
-            // 部门下拉树
-            // console.log(treeData);
-            this.showformTree[0].children = treeData;
-            // this.deptFormTree = treeData;
+            this.directoryOpt = treeData.map(o => {
+              return {
+                label: o.menuName,
+                value: o.menuId,
+                ...o
+              }
+            });
           } else {
             this.$message.error(res.data.msg);
           }
@@ -254,59 +293,152 @@ export default defineComponent({
     },
     // 树节点右键菜单
     treeNodeContextMenuClick: function (data, menuKey) {
-      // console.log("menu", data, menuKey);
-      if (menuKey == "add") {
-        this.selDept[0] = data[this.majorKey];
-        this.formType = 1;
-        this.formParentIdErr = false;
-        // 新增
-        this.formData = {};
-        // var treeData = JSON.parse(JSON.stringify(this.treeData));
-        // // this.showDeptFormTree = treeData;
-        // this.showDeptFormTree.children = treeData;
-        this.formUpdataKey++;
-      } else if (menuKey == "del") {
-        // 删除
-        var that = this;
-        this.$confirm({
-          title: () => "删除",
-          icon: () => createVNode(ExclamationCircleOutlined),
-          content: () => "确定要删除吗？",
-          onOk() {
-            return new Promise((resolve) => {
-              // 删除
-              that.$axios.delete("/system/dept/"+data[this.majorKey])
-                .then((res) => {
-                  resolve(true);
-                  if (res.data.code == 200) {
-                    that.selDept.lenght = 0;
-                    that.getDeptTree();
-                    
-                    that.formType = 0;
-                    that.formData = {};
-                    that.formParentId = '';
-                    that.formParentIdErr = false;
-                    // that.showDeptFormTree = [];
-                    that.formUpdataKey++;
-
-                  } else {
-                    that.$message.error(res.data.msg);
-                  }
-                })
-                .catch((err) => {
-                  that.$message.error("服务器异常");
-                  resolve(false);
-                });
-            });
-          },
-          onCancel() {},
-        });
+      switch(menuKey){
+        case 'addDirectory':
+          // 添加同级目录
+          this.formType=1;
+          // 菜单类型
+          this.menuType = 'M';
+          // 菜单图标
+          this.menuIcon = '';
+          // 上级菜单选中ID
+          this.formParentId = '0';
+          // 目录大图/菜单展示标志
+          this.menuComponent = '';
+          // 设置表单项配置
+          // icon
+          this.form.form[2].hidden = false;
+          // pic
+          this.form.form[3].hidden = false;
+          this.form.form[3].span = 21;
+          // 目录描述
+          this.form.form[6].hidden = false;
+          // 其他隐藏
+          for(var i=7;i<12;i++){
+            this.form.form[i].hidden = true;
+          }
+          // 上级菜单 下拉列表
+          this.showDirectoryOpt = [{
+            label: '根目录',
+            value: '0'
+          }];
+          // 初始化表单数据
+          for(var k in this.formTemplate){
+            this.formData[k] = {
+              value: k=='menuType'?'M':this.formTemplate[k]
+            }
+          }
+          this.formUpdataKey++;
+          break;
+        case 'addSubMenu':
+          // 添加子级菜单
+          this.formType=3;
+          // 菜单类型
+          this.menuType = 'C';
+          // 菜单图标
+          this.menuIcon = '';
+          // 上级菜单选中ID
+          this.formParentId = data.menuId;
+          // 目录大图/菜单展示标志
+          this.menuComponent = '';
+          // 设置表单项配置
+          // icon
+          this.form.form[2].hidden = false;
+          // pic
+          this.form.form[3].hidden = false;
+          this.form.form[3].span = 12;
+          // 目录描述
+          this.form.form[6].hidden = true;
+          // 其他隐藏
+          for(var i=7;i<12;i++){
+            this.form.form[i].hidden = false;
+          }
+          // 外链地址
+          this.form.form[8].hidden = true;
+          // 上级菜单 下拉列表
+          this.showDirectoryOpt = JSON.parse(JSON.stringify(this.directoryOpt));
+          // 初始化表单数据
+          for(var k in this.formTemplate){
+            this.formData[k] = {
+              value: k=='menuType'?'C':this.formTemplate[k]
+            }
+          }
+          this.formUpdataKey++;
+          break;
+        case 'addSameMenu':
+          // 添加同级菜单 
+          this.formType=3;
+          // 菜单类型
+          this.menuType = 'C';
+          // 菜单图标
+          this.menuIcon = '';
+          // 上级菜单选中ID
+          this.formParentId = data.parentId;
+          // 目录大图/菜单展示标志
+          this.menuComponent = '';
+          // 设置表单项配置
+          // icon
+          this.form.form[2].hidden = false;
+          // pic
+          this.form.form[3].hidden = false;
+          this.form.form[3].span = 12;
+          // 目录描述
+          this.form.form[6].hidden = true;
+          // 其他隐藏
+          for(var i=7;i<12;i++){
+            this.form.form[i].hidden = false;
+          }
+          // 外链地址
+          this.form.form[8].hidden = true;
+          // 上级菜单 下拉列表
+          this.showDirectoryOpt = JSON.parse(JSON.stringify(this.directoryOpt));
+          // 初始化表单数据
+          for(var k in this.formTemplate){
+            this.formData[k] = {
+              value: k=='menuType'?'C':this.formTemplate[k]
+            }
+          }
+          this.formUpdataKey++;
+          this.$forceUpdate();
+          break;
+        case 'del':
+          // 删除
+          var that = this;
+          this.$confirm({
+            title: () => "删除",
+            icon: () => createVNode(AntdIcon.ExclamationCircleOutlined),
+            content: () => "确定要删除吗？",
+            onOk() {
+              return new Promise((resolve) => {
+                that.genInterface("delete", data[that.majorKey])
+                  .then((res) => {
+                    resolve(true);
+                    if (res.data.code == 200) {
+                      that.getDeptTree();
+                      that.formType = 0;
+                      that.selDept.lenght = 0;
+                      that.formData = {};
+                      that.formParentId = '';
+                      that.formParentIdErr = false;
+                      that.formUpdataKey++;
+                    } else {
+                      that.$message.error(res.data.msg);
+                    }
+                  })
+                  .catch((err) => {
+                    that.$message.error("服务器异常");
+                    resolve(false);
+                  });
+              });
+            },
+            onCancel() {},
+          });
+          break;
       }
     },
     // 选中树节点
     selTreeNode: function (nodeKey) {
       var targetNodeData: any = null;
-      this.formType = 2;
       this.formParentIdErr = false;
       for (var i = 0; i < this.oneDimData.length; i++) {
         var one = this.oneDimData[i];
@@ -316,71 +448,121 @@ export default defineComponent({
         }
       }
       if (targetNodeData) {
-        this.showformTree[0].children = this.treeData;
-
         for(var k in this.formTemplate){
           this.formData[k] = {
             value: targetNodeData[k] || this.formTemplate[k]
           }
         }
+        // 外链地址
+        this.formData['remark_link'] = targetNodeData.remark||'';
+        this.menuType = targetNodeData.menuType;
+        this.menuIcon = targetNodeData.icon;
+        this.menuComponent = targetNodeData.component;
+        if(targetNodeData.menuType == 'M'){
+          this.formType=2;
+          // 目录
+          this.formParentId = '0';
 
-        // // 过滤部门下拉树
-        // var res = this.$common.recursiveSearch({
-        //   data: treeData,
-        //   recursiveKey: "children",
-        //   searchKey: this.majorKey,
-        //   searchVal: this.deptFormParentId,
-        // });
-        // // 可展示变更树
-        // this.showDeptFormTree.children = treeData;
+          // icon
+          this.form.form[2].hidden = false;
+          // pic
+          this.form.form[3].hidden = false;
+          this.form.form[3].span = 21;
+          // 目录描述
+          this.form.form[6].hidden = true;
+          // 其他隐藏
+          for(var i=7;i<12;i++){
+            this.form.form[i].hidden = true;
+          }
+          this.showDirectoryOpt = [{
+            label: '根目录',
+            value: '0'
+          }];
+
+        }else if(targetNodeData.menuType == 'C'){
+          this.formType = 4;
+          // icon
+          this.form.form[2].hidden = false;
+          // pic
+          this.form.form[3].hidden = false;
+          this.form.form[3].span = 12;
+
+          // 目录描述
+          this.form.form[6].hidden = true;
+          // 其他隐藏
+          for(var i=7;i<12;i++){
+            this.form.form[i].hidden = false;
+          }
+          // 外链地址
+          this.form.form[8].hidden = targetNodeData.isFrame=='0'?false:true;
+          this.showDirectoryOpt = JSON.parse(JSON.stringify(this.directoryOpt));
+
+          // 菜单
+          this.formParentId = targetNodeData.parentId;
+          // alpIcon:
+          this.menuComponent = /^alpIcon:/ig.test(targetNodeData.component)?''+targetNodeData.component.substr(9):'';
+        }
         this.formUpdataKey++;
       }
     },
-
     // 检验父级表单项的父级ID
     checkDeptParentId: function () {
-      this.formParentIdErr =
-        typeof this.formParentId == "undefined" ||
+      this.formParentIdErr = typeof this.formParentId == "undefined" ||
         this.formParentId === "";
       if(this.formParentId){
         this.selDept[0] = this.formParentId;
       }
       return this.formParentIdErr;
     },
-
     // 菜单类型 变更
     menuTypeChange: function(data){
-      // console.log(data);
       switch(data.value){
         case 'M':
           // icon
           data.form[2].hidden = false;
           // pic
           data.form[3].hidden = false;
-          // 是否外链
-          data.form[6].hidden = true;
+          data.form[3].span = 21;
+          // 目录描述
+          data.form[6].hidden = false;
           // 其他隐藏
           for(var i=7;i<12;i++){
             data.form[i].hidden = true;
           }
+          
+          this.showDirectoryOpt = [{
+            label: '根目录',
+            value: '0'
+          }];
+          this.menuComponent = "";
+          this.formParentId = '0';
+          this.menuType = 'M';
+          this.formType = this.formType==4?2:1;
           break;
         case 'C':
           // icon
           data.form[2].hidden = false;
           // pic
           data.form[3].hidden = false;
-          // 是否外链
-          data.form[6].hidden = false;
+          data.form[3].span = 12;
+
+          // 目录描述
+          data.form[6].hidden = true;
           // 其他隐藏
           for(var i=7;i<12;i++){
             data.form[i].hidden = false;
           }
-          break;
-        case 'F':
+          // 外链地址
+          data.form[8].hidden = data.formData.isFrame=='0'?false:true;
+
+          this.showDirectoryOpt = JSON.parse(JSON.stringify(this.directoryOpt));
+          this.formParentId = '';
+          this.menuComponent = "";
+          this.menuType = 'C';
+          this.formType = this.formType==2?4:3;
           break;
       }
     },
-
     // 新增/修改/删除/导出
     genInterface: function (type, data) {
       switch (type) {
@@ -398,37 +580,59 @@ export default defineComponent({
           return this.$axios.delete("/system/menu/" + data);
       }
     },
-
     // 表格数据  新增 / 修改
     submitConfig: function () {
-      var form = this.$refs["rowForm"];
+      var form = this.$refs["menuForm"];
       // 校验表单数据
       form.formValidation().then((res) => {
-        // console.log(res)
         if (res.state) {
-          var queryParams = {
+          var params = {
             ...this.formTemplate
           };
+
+          if(this.checkDeptParentId()){
+            // 未选取上级目录
+            return;
+          };
           // 合并表单项内容
-          queryParams = Object.assign(queryParams, res.form);
-          queryParams.deptId = this.deptId;
-          queryParams.password = this.$md5(queryParams.password.trim());
+          params = Object.assign(params, res.form);
+          switch(this.formType){
+            case 1:
+            case 2:
+              // parentId
+              params.parentId = this.formParentId;
+              // icon
+              params.icon = this.menuIcon;
+              // pic  -> component
+              params.component = this.menuComponent;
+              break;
+            case 3:
+            case 4:
+              // parentId
+              params.parentId = this.formParentId;
+              // icon
+              params.icon = '';
+              // pic  -> component
+              params.component = this.menuComponent?('alpIcon:'+this.menuComponent):'';
+              // remark  -> remark_link
+              params.remark = params.remark_link;
+              break;
+          };
+
           var loading = this.$loading({
             background: "rgba(0,0,0,0.0)",
             size: 166,
             iconColor: "#00678C",
           });
-          this.genInterface(this.rowConfig.type, queryParams)
+          this.genInterface(this.formType%2?'add':'edit', params)
             .then((requestRes) => {
               loading.close();
               if (requestRes.data.code == 200) {
-                // this.$message.success(
-                //   this.rowConfig.type == "add" ? "添加成功" : "保存成功"
-                // );
-                // this.rowConfig.show = false;
-                // var form = this.$refs["topForm"];
-                // var data = form.getFormData().formData;
-                // this.getList(data);
+                this.$message.success(
+                  this.formType%2? "添加成功" : "保存成功"
+                );
+                // 获取部门树
+                this.getDeptTree();
               } else {
                 this.$message.error(requestRes.data.msg);
               }
@@ -442,9 +646,9 @@ export default defineComponent({
     },
   },
   created: function () {
-    console.log(formConfig)
+    // console.log(formConfig)
     // 绑定菜单类型  变更回调方法
-    formConfig.mainForm.form[1].change = this.menuTypeChange;
+    formConfig.mainForm.form[0].change = this.menuTypeChange;
     // 获取部门树
     this.getDeptTree();
   },
@@ -536,7 +740,71 @@ export default defineComponent({
           }
         }
       }
+
+      
+      .group {
+        margin-bottom: 20px;
+        > .label {
+          float: left;
+          padding-right: 10px;
+          width: 70px;
+          height: 32px;
+          line-height: 32px;
+          text-align: right;
+          color: rgba(0, 0, 0, 0.85);
+          font-size: 12px;
+        }
+        > .setInput {
+          line-height: 32px;
+          margin-left: 70px;
+          > .control {
+            margin-bottom: 5px;
+            height: 32px;
+            line-height: 32px;
+          }
+
+          > .tree {
+            border: 1px solid #ddd;
+            height: 200px;
+            overflow: auto;
+          }
+
+          .modulePics{
+            overflow: hidden;
+            >li{
+              float: left;
+              margin: 0 10px 10px 0;
+              text-align: center;
+              user-select: none;
+              cursor: pointer;
+              >.img{
+                margin-bottom: 5px;
+                width: 200px;
+                height: 110px;
+                overflow: hidden;
+                display: flex;
+                flex-direction: column;
+                justify-content: center;
+                >img{
+                  display: block;
+                  width: 100%;
+                }
+              }
+            }
+          }
+        }
+      }
     }
+  }
+}
+
+.iconOpt{
+  // height: 30px;
+  // line-height: 30px;
+  font-size: 16px;
+  color: #333;
+  >.text{
+    margin-left: 10px;
   }
 }
 </style>
