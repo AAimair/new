@@ -126,6 +126,8 @@
                   ><EditOutlined />修改</a-button
                 >
                 <a-button
+                  :disabled="row.userId==1"
+                  :style="{ color: row.userId==1?'#aaa':'' }"
                   size="small"
                   type="text"
                   @click="itemOptions('delete', row)"
@@ -484,6 +486,10 @@ export default defineComponent({
           loading.close();
           if (res.data.code == 200) {
             // this.tableData = [].concat(res.data.rows, res.data.rows, res.data.rows, res.data.rows);
+            res.data.rows.forEach(one => {
+              // console.log(one);
+              one.deptName = one.dept.deptName;
+            });
             this.tableData = res.data.rows;
             this.pagination.total = res.data.total;
             // this.pagination.total = 50;
@@ -628,7 +634,19 @@ export default defineComponent({
                 this.tableRowFormData[k] = {
                   value: defValue || this.formTemplate[k],
                 };
+                // 用户名不允许编辑
+                if(['userName'].indexOf(k)!=-1){
+                  this.tableRowFormData[k].disabled = true;
+                }
               }
+
+              // 密码不允许编辑
+              this.tableRowFormData.password = {
+                value: '******',
+                disabled: true,
+              }
+              console.log(this.tableRowFormData);
+
               this.deptId = res.data.data.deptId;
               this.rowConfig.type = "edit";
               this.rowConfig.show = true;
@@ -718,8 +736,10 @@ export default defineComponent({
             };
             // 合并表单项内容
             queryParams = Object.assign(queryParams, res.form);
+            // 删除用户密码
+            delete(queryParams.password);
             queryParams.deptId = this.deptId;
-            queryParams.password = this.$md5(queryParams.password.trim());
+            // queryParams.password = this.$md5(queryParams.password.trim());
             var loading = this.$loading({
               background: "rgba(0,0,0,0.0)",
               size: 166,

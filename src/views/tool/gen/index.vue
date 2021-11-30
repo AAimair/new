@@ -430,8 +430,8 @@ export default defineComponent({
     // 获取导入表
     getImportList: function(params){
       var queryParams = {
-        pageNum: this.pagination.current,
-        pageSize: this.pagination.pageSize,
+        pageNum: this.importTable.current,
+        pageSize: this.importTable.pageSize,
       };
 
       var loading = this.$loading({

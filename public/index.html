@@ -1,19 +1,44 @@
 <!DOCTYPE html>
 <html lang="">
-  <head>
-    <meta charset="utf-8">
-    <meta http-equiv="X-UA-Compatible" content="IE=edge">
-    <meta name="viewport" content="width=device-width,initial-scale=1.0">
-    <link rel="icon" href="<%= BASE_URL %>favicon.ico">
-      <link rel="stylesheet" href="./globalStyle/global.css">
-    <title><%= htmlWebpackPlugin.options.title %></title>
-  </head>
-  <body>
-    <noscript>
-      <strong>We're sorry but <%= htmlWebpackPlugin.options.title %> doesn't work properly without JavaScript enabled. Please enable it to continue.</strong>
-    </noscript>
-    <div id="app"></div>
-    <!-- built files will be auto injected -->
+
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width,initial-scale=1.0">
+  <link rel="icon" href="<%= BASE_URL %>favicon.ico">
+  <link rel="stylesheet" href="./globalStyle/global.css">
+
+  <!-- luckysheet -->
+  <!-- <link rel="stylesheet" href="./plugins/luckysheet/pluginsCss.css">
+  <link rel="stylesheet" href="./plugins/luckysheet/plugins.css">
+  <link rel="stylesheet" href="./plugins/luckysheet/luckysheet.css">
+  <link rel="stylesheet" href="./plugins/luckysheet/iconfont.css"> -->
+
+  <!-- spreadjs -->
+  <!-- <link rel="stylesheet" href="./plugins/spreadjs/gc.spread.sheets.10.0.1.css">
+  <link rel="stylesheet" href="./plugins/spreadjs/gc.spread.sheets.excel2013white.10.0.1.css"> -->
+  <title>
+    <%= htmlWebpackPlugin.options.title %>
+  </title>
+</head>
+
+<body>
+  <noscript>
+    <strong>We're sorry but <%= htmlWebpackPlugin.options.title %> doesn't work properly without JavaScript enabled.
+        Please enable it to continue.</strong>
+  </noscript>
+  <div id="app"></div>
+  <!-- built files will be auto injected -->
   <script src="./plugins/ckeditor/ckeditor.js"></script>
-  </body>
+  <!-- luckysheet -->
+  <!-- <script src="./plugins/luckysheet/plugin.js"></script>
+  <script src="./plugins/luckysheet/luckysheet.umd.js"></script> -->
+
+  <!-- spreadjs -->
+  <!-- <script src="./plugins/spreadjs/FileSaver.js"></script>
+  <script src="./plugins/spreadjs/xlsx.full.min.js"></script>
+  <script src="./plugins/spreadjs/gc.spread.excelio.10.0.1.min.js"></script>
+  <script src="./plugins/spreadjs/gc.spread.sheets.all.10.0.1.min.js"></script>
+  <script src="./plugins/spreadjs/gc.spread.sheets.resources.zh.10.0.1.min.js"></script> -->
+</body>
 </html>
