@@ -64,15 +64,15 @@
               </template>
               删除
             </a-button>
-            <a-button
-              size="small"
-              @click="rowHandle('top.export', null)"
-            >
-              <template #icon>
-                <ToTopOutlined/>
-              </template>
-              导出
-            </a-button>
+<!--            <a-button-->
+<!--              size="small"-->
+<!--              @click="rowHandle('top.export', null)"-->
+<!--            >-->
+<!--              <template #icon>-->
+<!--                <ToTopOutlined/>-->
+<!--              </template>-->
+<!--              导出-->
+<!--            </a-button>-->
             <a-button
               size="small"
               :disabled="topRowSelection.length !== 1"
@@ -269,15 +269,15 @@
               </template>
               清空
             </a-button>
-            <a-button
-              size="small"
-              @click="rowHandle('bottom.export', null)"
-            >
-              <template #icon>
-                <ToTopOutlined/>
-              </template>
-              导出
-            </a-button>
+<!--            <a-button-->
+<!--              size="small"-->
+<!--              @click="rowHandle('bottom.export', null)"-->
+<!--            >-->
+<!--              <template #icon>-->
+<!--                <ToTopOutlined/>-->
+<!--              </template>-->
+<!--              导出-->
+<!--            </a-button>-->
           </div>
         </div>
         <div
@@ -972,9 +972,9 @@ export default defineComponent({
     // cron 表达式
     cronConfirm: function (type) {
       if (type){
-        this.topDialogOptions.key ++;
+        // this.topDialogOptions.key ++;
         const cron = this.cronDialogOptions.cronData;
-        this.topDialogOptions.data.cronExpression = {value: cron};
+        this.$refs.topForm.formData.cronExpression = cron;
       }
       this.cronDialogOptions.show = false;
     }
