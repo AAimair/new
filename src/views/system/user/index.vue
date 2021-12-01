@@ -486,8 +486,8 @@ export default defineComponent({
           loading.close();
           if (res.data.code == 200) {
             // this.tableData = [].concat(res.data.rows, res.data.rows, res.data.rows, res.data.rows);
+            // 部门名称
             res.data.rows.forEach(one => {
-              // console.log(one);
               one.deptName = one.dept.deptName;
             });
             this.tableData = res.data.rows;
