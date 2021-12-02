@@ -425,15 +425,19 @@ export default defineComponent({
           vertical-align: middle;
           color: rgba(0, 0, 0, 0.85);
           font-size: 12px;
+          display: flex;
+          align-items: center;
+          justify-content: flex-end;
 
           &:before {
             display: inline-block;
-            margin-right: 4px;
+            margin-left: 2px;
             color: #ff4d4f;
             font-size: 12px;
             font-family: SimSun, sans-serif;
             line-height: 1;
             content: "*";
+            order: 1;
           }
         }
         > .setInput {
