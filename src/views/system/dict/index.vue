@@ -65,7 +65,7 @@
             :row-selection="topTable.tableSelection"
             :pagination="false"
             size="small"
-            rowKey="dictId"
+            :rowKey="topMajorKey"
             :scroll="{ y: topTable.tableViewHeight - 40 }"
             bordered
           >
@@ -193,7 +193,7 @@
             :row-selection="bottomTable.tableSelection"
             :pagination="false"
             size="small"
-            rowKey="dictCode"
+            :rowKey="bottomMajorKey"
             :scroll="{ y: bottomTable.tableViewHeight - 40 }"
             bordered
           >
@@ -284,6 +284,7 @@ export default defineComponent({
       topSearchForm: formConfig.topSearchForm,
       topSearchFormShrink: false,
       topFormHeight: 0,
+      topMajorKey: 'dictId',
       topTable: {
         tableSelection: {
           selectedRowKeys: [],
@@ -360,6 +361,7 @@ export default defineComponent({
 
       bottomSearchForm: formConfig.bottomSearchForm,
       bottomSearchFormShrink: false,
+      bottomMajorKey: 'dictCode',
       bottomTable: {
         dictType: null,
         tableSelection: {
@@ -509,8 +511,7 @@ export default defineComponent({
         .catch((err) => {
           loading.close();
         });
-    },
-    
+    },  
     // 新增/修改/删除  top-字典类型  bottom-字典数据
     sendRequest: function (type, data) {
       switch (type) {
@@ -545,7 +546,6 @@ export default defineComponent({
         //   });
       }
     },
-
     // 顶部查询  方法
     topSearch: function (type) {
       var topForm = this.$refs["topSearchForm"];
@@ -596,7 +596,7 @@ export default defineComponent({
           break;
         case "topDelete":
           // 删除
-          var editData = this.topTable.selRow.data.map((item) => item.dictId);
+          var editData = this.topTable.selRow.data.map((item) => item[this.topMajorKey]);
           var that = this;
           this.$confirm({
             title: () => "删除",
@@ -627,7 +627,6 @@ export default defineComponent({
             },
             onCancel() {},
           });
-
           break;
         case "topExport":
           // 导出
@@ -666,7 +665,7 @@ export default defineComponent({
         case "bottomEdit":
           // 修改
           var editData = this.bottomTable.selRow.data[0];
-          this.sendRequest("bottomDetail", editData.dictCode).then(res => {
+          this.sendRequest("bottomDetail", editData[this.bottomMajorKey]).then(res => {
             if(res.data.code == 200){
               var itemData = res.data.data;
               this.popupConfig.show = true;
@@ -691,7 +690,7 @@ export default defineComponent({
           break;
         case "bottomDelete":
           // 删除
-          var editData = this.bottomTable.selRow.data.map((item) => item.dictCode);
+          var editData = this.bottomTable.selRow.data.map((item) => item[this.bottomMajorKey]);
           var that = this;
           this.$confirm({
             title: () => "删除",
@@ -721,7 +720,6 @@ export default defineComponent({
             },
             onCancel() {},
           });
-
           break;
         case "bottomExport":
           // 导出
@@ -761,13 +759,13 @@ export default defineComponent({
               return new Promise((resolve) => {
                 // 删除
                 that
-                  .sendRequest(type, item.dictId)
+                  .sendRequest(type, item[this.topMajorKey])
                   .then((res) => {
                     resolve(true);
                     if (res.data.code == 200) {
                       for(var i=that.topTable.selRow.data.length-1;i>=0;i--){
                         var one = that.topTable.selRow.data[i];
-                        if(one.dictId == item.dictId){
+                        if(one[that.topMajorKey] == item[that.topMajorKey]){
                           that.topTable.tableSelection.selectedRowKeys.splice(i,1);
                           that.topTable.selRow.data.splice(i,1);
                         }
@@ -791,7 +789,7 @@ export default defineComponent({
         case "bottomEdit":
           // 修改
           var editData = item;
-          this.sendRequest("bottomDetail", editData.dictCode).then(res => {
+          this.sendRequest("bottomDetail", editData[this.bottomMajorKey]).then(res => {
             if(res.data.code == 200){
               var itemData = res.data.data;
               this.popupConfig.show = true;
@@ -825,13 +823,13 @@ export default defineComponent({
               return new Promise((resolve) => {
                 // 删除
                 that
-                  .sendRequest("bottomDelete", item.dictCode)
+                  .sendRequest("bottomDelete", item[that.bottomMajorKey])
                   .then((res) => {
                     resolve(true);
                     if (res.data.code == 200) {
                       for(var i=that.bottomTable.selRow.data.length-1;i>=0;i--){
                         var one = that.bottomTable.selRow.data[i];
-                        if(one.dictId == item.dictId){
+                        if(one[that.topMajorKey] == item[that.topMajorKey]){
                           that.bottomTable.tableSelection.selectedRowKeys.splice(i,1);
                           that.bottomTable.selRow.data.splice(i,1);
                         }
@@ -855,10 +853,9 @@ export default defineComponent({
     },
     // table行选中事件
     onTopSelectChange: function (selectedRowKeys) {
-      // console.log(selectedRowKeys);
       var selData = <any>[];
       this.topTable.tableData.forEach((one) => {
-        if (selectedRowKeys.indexOf(one.dictId) != -1) {
+        if (selectedRowKeys.indexOf(one[this.topMajorKey]) != -1) {
           selData.push({
             ...one,
           });
@@ -875,14 +872,8 @@ export default defineComponent({
     },
     // 选中字典类型
     selDictType: function (data) {
-      // console.log(data) 
-      // 获取已选中行index
-      // var selTableIds = [...this.topTable.tableSelection.selectedRowKeys];
-      // if(selTableIds.indexOf(data.index)==-1){
-      //   selTableIds.push(data.index);
-      // }
       // 渲染选中数据
-      this.onTopSelectChange([data.record.dictId]);
+      this.onTopSelectChange([data.record[this.topMajorKey]]);
 
       this.bottomTable.dictType = data.record.dictType;
       var bottomForm = this.$refs["bottomSearchForm"];
@@ -897,7 +888,6 @@ export default defineComponent({
         pageNum: this.bottomTable.pagination.current,
         pageSize: this.bottomTable.pagination.pageSize,
       };
-
       var loading = this.$loading({
         background: "rgba(0,0,0,0.0)",
         size: 166,
@@ -924,10 +914,9 @@ export default defineComponent({
     },
     // table行选中事件
     onBottomSelectChange: function (selectedRowKeys) {
-      // console.log("selectedRowKeys changed: ", selectedRowKeys);
       var selData = <any>[];
       this.bottomTable.tableData.forEach((one) => {
-        if (selectedRowKeys.indexOf(one.dictCode) != -1) {
+        if (selectedRowKeys.indexOf(one[this.bottomMajorKey]) != -1) {
           selData.push({
             ...one,
           });
@@ -948,7 +937,6 @@ export default defineComponent({
         var form = this.$refs["rowForm"];
         // 校验表单数据
         form.formValidation().then((res) => {
-          // console.log(res)
           if (res.state) {
             var isTop = /^top/ig.test(this.popupConfig.type);
             var queryParams = {...(isTop?this.popupConfig.dictTypeFormTemp:this.popupConfig.dictDataFormTemp)};

@@ -114,6 +114,8 @@ export default defineComponent({
   name: "systemPostPage",
   data: function () {
     return {
+      // 主键Key
+      majorKey: 'deptId',
       expandedKeys: [],
       searchTreeKey: "",
       autoExpandParent: true,
@@ -135,6 +137,18 @@ export default defineComponent({
       deptFormData: {},
       deptFormType: 0,  //  0 没有选取部门数据/1 新增数据/2  修改数据
       formUpdataKey: 1,
+
+      // 表单模版
+      formTemplate: {
+        deptId: undefined,
+        parentId: this.deptFormParentId,
+        deptName: undefined,
+        orderNum: undefined,
+        leader: undefined,
+        phone: undefined,
+        email: undefined,
+        status: "0",
+      },
     };
   },
   watch: {
@@ -142,7 +156,7 @@ export default defineComponent({
       const expanded = <Array<any>>[];
       this.oneDimData.forEach((item) => {
         if (item.deptName.indexOf(val) > -1) {
-          expanded.push(item.deptId);
+          expanded.push(item[this.majorKey]);
         }
       });
       this.expandedKeys = expanded;
@@ -161,7 +175,7 @@ export default defineComponent({
             var treeData = this.parseTreeData(res.data.data);
             this.treeData = treeData;
             this.oneDimData = res.data.data;
-            this.expandedKeys = res.data.data.map(o => o.deptId);
+            this.expandedKeys = res.data.data.map(o => o[this.majorKey]);
             // 部门下拉树
             this.deptFormTree = treeData;
           } else {
@@ -177,7 +191,7 @@ export default defineComponent({
       var res = <any>[],
         map = {};
       if (Array.isArray(data)) {
-        data.sort((a, b) => a.deptId - b.deptId);
+        data.sort((a, b) => a[this.majorKey] - b[this.majorKey]);
         data.forEach((one) => {
           var template = {
             ...one,
@@ -189,8 +203,8 @@ export default defineComponent({
             map[one.parentId].children.push(template);
           }
 
-          if (!map[one.deptId]) {
-            map[one.deptId] = template;
+          if (!map[one[this.majorKey]]) {
+            map[one[this.majorKey]] = template;
           }
         });
       }
@@ -206,17 +220,17 @@ export default defineComponent({
     treeNodeContextMenuClick: function (data, menuKey) {
       // console.log("menu", data, menuKey);
       if (menuKey == "add") {
-        this.selDept[0] = data.deptId;
+        this.selDept[0] = data[this.majorKey];
         this.deptFormType = 1;
         this.deptFormParentIdErr = false;
         // 新增
-        this.deptFormData = {
-          status: {
-            value: '0'
+        for(var k in this.formTemplate){
+          this.deptFormData[k] = {
+            value: this.formTemplate[k]
           }
-        };
+        }
         var treeData = JSON.parse(JSON.stringify(this.deptFormTree));
-        this.deptFormParentId = [data.deptId];
+        this.deptFormParentId = [data[this.majorKey]];
         this.showDeptFormTree = treeData;
         this.formUpdataKey++;
       } else if (menuKey == "del") {
@@ -229,7 +243,7 @@ export default defineComponent({
           onOk() {
             return new Promise((resolve) => {
               // 删除
-              that.$axios.delete("/system/dept/"+data.deptId)
+              that.$axios.delete("/system/dept/"+data[that.majorKey])
                 .then((res) => {
                   resolve(true);
                   if (res.data.code == 200) {
@@ -264,49 +278,38 @@ export default defineComponent({
       this.deptFormParentIdErr = false;
       for (var i = 0; i < this.oneDimData.length; i++) {
         var one = this.oneDimData[i];
-        if (one.deptId == nodeKey) {
+        if (one[this.majorKey] == nodeKey) {
           targetNodeData = one;
           break;
         }
       }
       this.deptFormData = {};
       // 全部部门树数据
-      var treeData = JSON.parse(JSON.stringify(this.deptFormTree)),
-        deptId = null;
+      var treeData = JSON.parse(JSON.stringify(this.deptFormTree)), deptId = null;
 
       if (targetNodeData) {
-        var formKeys = [
-          "deptId",
-          "parentId",
-          "deptName",
-          "orderNum",
-          "leader",
-          "phone",
-          "email",
-          "status",
-        ];
-        formKeys.forEach((k) => {
-          this.deptFormData[k] = {
-            value: targetNodeData[k],
-          };
+        for(var k in this.formTemplate){
           if (k == "parentId") {
             this.deptFormParentId = targetNodeData[k];
           }
           if (k == "deptId") {
             deptId = targetNodeData[k];
           }
-        });
+          this.deptFormData[k] = {
+            value: typeof(targetNodeData[k])!=='undefined'?targetNodeData[k]:this.formTemplate[k]
+          }
+        }
         // 过滤部门下拉树
         var res = this.$common.recursiveSearch({
           data: treeData,
           recursiveKey: "children",
-          searchKey: "deptId",
+          searchKey: this.majorKey,
           searchVal: this.deptFormParentId,
         });
         if (res.result) {
           for (var i = res.data.children.length - 1; i >= 0; i--) {
             var one = res.data.children[i];
-            if (one.deptId == deptId) {
+            if (one[this.majorKey] == deptId) {
               res.data.children.splice(i, 1);
             }
           }
@@ -316,7 +319,6 @@ export default defineComponent({
         this.formUpdataKey++;
       }
     },
-
     // 检验父级表单项的父级ID
     checkDeptParentId: function () {
       this.deptFormParentIdErr =
@@ -327,19 +329,12 @@ export default defineComponent({
       }
       return this.deptFormParentIdErr;
     },
-
     // 提交部门保存
     submitDept: function () {
       var formTemplate = {
-        deptId: undefined,
-        parentId: this.deptFormParentId,
-        deptName: undefined,
-        orderNum: undefined,
-        leader: undefined,
-        phone: undefined,
-        email: undefined,
-        status: "0",
+        ...this.formTemplate
       };
+      formTemplate.parentId = this.deptFormParentId;
 
       // 验证
       if(this.checkDeptParentId()){
@@ -364,7 +359,6 @@ export default defineComponent({
             .catch((err) => {
               this.$message.error("服务器异常");
             });
-
         }
       });
 
