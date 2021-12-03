@@ -1,5 +1,5 @@
 <template>
-  <div class="home">
+  <div class="home" v-if="!isRefresh">
     <div class="leftNav" @click="navMenuClick(false)">
       <div class="navMenu">
         <ul v-if="showLeftNav" @click.stop="">
@@ -51,13 +51,21 @@
       </div>
       <div class="config">
         <ul>
-          <li title="刷新" class="btn"><RedoOutlined /></li>
-          <li title="关于" class="btn"><InfoCircleOutlined /></li>
-          <li title="设置" class="btn"><SettingOutlined /></li>
+          <li title="刷新" class="btn" @click="configOption('refresh')"><RedoOutlined /></li>
+          <li title="关于" class="btn" @click="configOption('about')"><InfoCircleOutlined /></li>
+          <li title="设置" class="btn" @click="configOption('config')"><SettingOutlined /></li>
           <li>
-            <span class="user">
+            <!-- <span class="user">
               <component :is="dynamicIcon('UserOutlined')" />
-            </span>
+            </span> -->
+            <a-popover size="small" placement="rightBottom" overlayClassName="userPopup">
+              <template #content>
+                <span @click="configOption('logout')">退出</span>
+              </template>
+              <span class="user">
+                <component :is="dynamicIcon('UserOutlined')" />
+              </span>
+            </a-popover>
           </li>
         </ul>
       </div>
@@ -113,6 +121,21 @@
         <!-- </template> -->
       </div>
     </div>
+
+    <!-- 关于 -->
+    <a-modal
+      v-model:visible="about.show"
+      title="关于"
+      :width="300"
+      :closable="false"
+    >
+      <template #footer>
+        <a-button key="submit" type="primary" @click="about.show=false">关闭</a-button>
+      </template>
+      <div class="aboutContent">
+        Opcenter Execution Foundation v 1.0 © 2021 Code365
+      </div>
+    </a-modal>
   </div>
 </template>
 <script lang="ts">
@@ -151,6 +174,14 @@ export default defineComponent({
       
       // cache 异步组件加载
       componentCacheMap: {},
+
+      // 刷新
+      isRefresh: false,
+
+      // 关于
+      about: {
+        show: false,
+      }
     };
   },
   created: function () {
@@ -453,6 +484,43 @@ export default defineComponent({
           ].id;
       }
       this.$forceUpdate();
+    },
+
+    // 设置
+    configOption: function(type){
+      switch(type){
+        case 'refresh':
+          // 刷新  重新加载模块
+          var loading = this.$loading({
+            // target: this.$el,
+            background: 'rgba(0,0,0,0.75)',
+            size: 166,
+            iconColor: '#00678C',
+          });
+
+          this.isRefresh = true;
+          setTimeout(() => {
+            this.isRefresh = false;
+            this.$nextTick(function(){
+              loading.close();
+            });
+          }, 1000)
+          break;
+        case 'about':
+          // 关于
+          this.about.show = true;
+          break;
+        case 'config':
+          // 设置
+          this.$message.info('正在开发中...');
+          break;
+        case 'logout':
+          // 清空TOKEN
+          sessionStorage['token'] = '';
+          document.cookie = 'token="";';
+          this.$router.push("login");
+          break;
+      }
     },
   },
 });
@@ -803,6 +871,25 @@ export default defineComponent({
       &:active {
         background-color: #004c6c;
       }
+    }
+  }
+}
+
+// 用户退出菜单 
+.ant-popover.userPopup{
+  .ant-popover-arrow{
+    border-color: transparent transparent #004c6c #004c6c;
+  }
+  .ant-popover-inner-content{
+    background-color: #004c6c;
+    padding: 0 15px;
+    >span{
+      display: inline-block;
+      height: 30px;
+      line-height: 30px;
+      font-size: 12px;
+      color: #aae6f5;
+      cursor: pointer;
     }
   }
 }
