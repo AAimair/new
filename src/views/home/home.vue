@@ -3,36 +3,49 @@
     <div class="leftNav" @click="navMenuClick(false)">
       <div class="navMenu">
         <ul v-if="showLeftNav" @click.stop="">
-          <!--  -->
+          <!-- navData -->
           <li
-            v-for="item in navData"
+            v-for="item in leftNavMenu"
             :key="item.id"
             :class="{ sel: subMenu.selNavId == item.id }"
             @click="navMenuClick(item)"
+            :title="item.name"
           >
             <div class="icon">
               <component :is="dynamicIcon(item.icon)" />
             </div>
           </li>
+
+          <!-- 更多 -->
+          <li class="otherMenu" v-if="moreMenu.length" title="更多">
+            <a-menu :inline-collapsed="true" @click="moreMenuClick">
+              <a-sub-menu popupClassName="otherSubMenu">
+                <template #icon>
+                  <component :is="dynamicIcon('MoreOutlined')" />
+                </template>
+                <a-menu-item v-for="oMenn in moreMenu" :key="oMenn.id">{{oMenn.name}}</a-menu-item>
+              </a-sub-menu>
+            </a-menu>
+          </li>
         </ul>
-        <div class="subMenu" v-if="subMenu.show" @click="navMenuClick(false)">
-          <div class="menu">
-            <div class="subTit">
-              <div class="closeBtn" @click="navMenuClick(false)" title="关闭">
-                <CloseOutlined />
-              </div>
+      </div>
+      <div class="subMenu" v-if="subMenu.show" @click.stop="navMenuClick(false)">
+        <div class="menu">
+          <div class="subTit">
+            <div class="closeBtn" @click="navMenuClick(false)" title="关闭">
+              <CloseOutlined />
             </div>
-            <div class="subMenuView">
-              <ul>
-                <li
-                  v-for="subItem in subMenu.data"
-                  :key="subItem.id"
-                  @click="open(subItem)"
-                >
-                  <span>{{ subItem.name }}</span>
-                </li>
-              </ul>
-            </div>
+          </div>
+          <div class="subMenuView">
+            <ul>
+              <li
+                v-for="subItem in subMenu.data"
+                :key="subItem.id"
+                @click="open(subItem)"
+              >
+                <span>{{ subItem.name }}</span>
+              </li>
+            </ul>
           </div>
         </div>
       </div>
@@ -128,6 +141,13 @@ export default defineComponent({
       navTabsLeft: 0,
       // 展示左侧导航菜单
       showLeftNav: false,
+
+      // 左侧导航菜单高度
+      leftNavHeight: 0,
+      // 导航菜单
+      leftNavMenu: [],
+      // 其他更多导航菜单
+      moreMenu: [],
       
       // cache 异步组件加载
       componentCacheMap: {},
@@ -184,9 +204,34 @@ export default defineComponent({
           });
         }
 
+        // 显示最大菜单数量
+        var showMaxMenuNum = this.leftNavHeight/48|0;
+        var navLen = this.navData.length;
+        if(navLen>showMaxMenuNum){
+          this.navData.forEach((subMenu, idx) => {
+            if(idx<(showMaxMenuNum-1)){
+              // 可展示全的菜单
+              this.leftNavMenu.push({
+                ...subMenu
+              });
+            }else{
+              // 更多导航菜单
+              this.moreMenu.push({
+                ...subMenu
+              });
+            }
+          });
+        }else{
+          this.leftNavMenu = this.navData;
+        }
+
         this.isLoading = true;
         loading.close();
       });
+  },
+  mounted: function(){
+    // 左侧导航条高度
+    this.leftNavHeight = this.$el.querySelector('.navMenu').clientHeight;
   },
   methods: {
     getProjectName: function () {
@@ -319,6 +364,19 @@ export default defineComponent({
         this.open(data);
       }
     },
+    // 更多菜单回调事件
+    moreMenuClick: function(key){
+      // console.log(key);
+      for(var i=0;i<this.moreMenu.length;i++){
+        var one = this.moreMenu[i];
+        if(one.id == key.key){
+          // 打开二级菜单
+          this.navMenuClick(one);
+          break;
+        }
+      };
+    },
+
     // 导航tab移动
     navTabsMove: function (type) {
       var direction = type == "prev" ? 1 : -1;
@@ -415,6 +473,7 @@ export default defineComponent({
 
     > .navMenu {
       height: calc(100% - 192px);
+      overflow: hidden;
       > ul {
         > li {
           width: 64px;
@@ -431,58 +490,84 @@ export default defineComponent({
           &:hover {
             background-color: rgba(0, 0, 0, 0.15);
           }
-        }
-      }
 
-      > .subMenu {
-        position: fixed;
-        top: 0;
-        left: 64px;
-        right: 0;
-        bottom: 0;
-        z-index: 100;
-        > .menu {
-          padding: 5px 0;
-          width: 288px;
-          height: 100%;
-          background-color: #003750;
-          box-shadow: 8px 8px 16px 0 rgba(0, 0, 0, 0.3),
-            2px -4px 4px 0 rgba(0, 0, 0, 0.3) inset;
-
-          > .subTit {
-            overflow: hidden;
-            padding: 0 10px;
-            > .closeBtn {
-              float: right;
-              width: 20px;
-              height: 20px;
-              line-height: 20px;
-              color: #fff;
+          &.otherMenu{
+            .ant-menu.ant-menu-inline-collapsed{
+              width: auto;
+              background-color: transparent;
               text-align: center;
-              cursor: pointer;
-              opacity: 0.3;
-              &:hover {
-                opacity: 1;
+              border: 0;
+            }
+            .ant-menu-submenu{
+              height: 48px;
+              line-height: 48px;
+            }
+            .ant-menu-item:active, 
+            .ant-menu-submenu-title:active{
+              background-color: transparent;
+            }
+            .ant-menu-submenu-title{
+              margin: 0;
+              padding: 0;
+              color: #fff;
+              svg{
+                transform: translate(5px, 9px);
+                width: 24px !important;
+                height: 24px !important;
               }
             }
           }
+        }
+      }
+    }
+    > .subMenu {
+      position: fixed;
+      top: 0;
+      left: 64px;
+      right: 0;
+      bottom: 0;
+      z-index: 100;
+      > .menu {
+        padding: 5px 0;
+        width: 288px;
+        height: 100%;
+        background-color: #003750;
+        box-shadow: 8px 8px 16px 0 rgba(0, 0, 0, 0.3),
+          2px -4px 4px 0 rgba(0, 0, 0, 0.3) inset;
 
-          > .subMenuView {
-            height: calc(100%);
-            > ul {
-              > li {
-                margin-bottom: 5px;
-                padding: 0 10px 0 15px;
-                height: 30px;
-                line-height: 30px;
-                font-size: 12px;
-                color: #aae6f5;
-                cursor: pointer;
+        > .subTit {
+          overflow: hidden;
+          padding: 0 10px;
+          > .closeBtn {
+            float: right;
+            width: 20px;
+            height: 20px;
+            line-height: 20px;
+            color: #fff;
+            text-align: center;
+            cursor: pointer;
+            opacity: 0.3;
+            &:hover {
+              opacity: 1;
+            }
+          }
+        }
 
-                &:hover,
-                &:active {
-                  background-color: #004c6c;
-                }
+        > .subMenuView {
+          height: calc(100%);
+          > ul {
+            > li {
+              margin-bottom: 5px;
+              padding: 0 10px 0 15px;
+              height: 30px;
+              line-height: 30px;
+              font-size: 12px;
+              color: #aae6f5;
+              cursor: pointer;
+
+              &:hover,
+              &:active {
+                background-color: #004c6c;
               }
             }
           }
@@ -690,6 +775,33 @@ export default defineComponent({
         background-color: #464646;
         opacity: 0.2;
         border-radius: 24px;
+      }
+    }
+  }
+}
+
+// 更多子菜单弹出窗
+.otherSubMenu{
+  background-color: #003750;
+  box-shadow: 8px 8px 16px 0 rgba(0, 0, 0, 0.3), 2px -4px 4px 0 rgba(0, 0, 0, 0.3);
+  &.ant-menu-submenu-popup>.ant-menu{
+    background-color: #003750;
+  }
+  ul.ant-menu-vertical.ant-menu-sub{
+    padding: 5px 0;
+    >li.ant-menu-item{
+      margin: 0;
+      padding: 0 10px 0 15px;
+      height: 30px;
+      line-height: 30px;
+      font-size: 12px;
+      color: #aae6f5;
+      cursor: pointer;
+
+      &.ant-menu-item-selected,
+      &:hover,
+      &:active {
+        background-color: #004c6c;
       }
     }
   }
