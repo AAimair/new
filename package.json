@@ -7,7 +7,7 @@
     "build": "vue-cli-service build"
   },
   "dependencies": {
-    "alp-ui": "^0.2.24",
+    "alp-ui": "^0.2.25",
     "axios": "^0.24.0",
     "blueimp-md5": "^2.19.0",
     "core-js": "^3.6.5",

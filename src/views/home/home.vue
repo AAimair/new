@@ -133,7 +133,7 @@
         <a-button key="submit" type="primary" @click="about.show=false">关闭</a-button>
       </template>
       <div class="aboutContent">
-        Opcenter Execution Foundation v 1.0 © 2021 Code365
+        快速开发平台 v 1.0 © 2021 Code365
       </div>
     </a-modal>
   </div>
@@ -518,7 +518,7 @@ export default defineComponent({
           // 清空TOKEN
           sessionStorage['token'] = '';
           document.cookie = 'token="";';
-          this.$router.push("login");
+          this.$router.push("/login");
           break;
       }
     },
