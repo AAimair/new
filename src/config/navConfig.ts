@@ -25,6 +25,10 @@ const systemRolePage = () => import("../views/system/role/index.vue");
 const systemUserPage = () => import("../views/system/user/index.vue");
 // 菜单管理
 const systemMenuPage = () => import("../views/system/menu/index.vue");
+// 流水号管理
+const systemIdentity = () => import("../views/system/identity/index.vue");
+// 附件管理
+const systemAttachment = () => import("../views/system/attachment/index.vue");
 
 //------- 系统监控 -----------//
 // 在线用户
@@ -66,6 +70,8 @@ const componentMap = {
   user: systemUserPage,
   menu: systemMenuPage,
   subsys: systemSubsys,
+  identity: systemIdentity,
+  attachment : systemAttachment,
 }
 
 // 模块图片
