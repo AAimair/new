@@ -3,6 +3,8 @@ const indexPage = () => import("../views/index/index.vue");
 // alpIcon图标列表
 const alpIcon = () => import("../views/basic/svgIcon.vue");
 
+// 子系统管理
+const systemSubsys = () => import("../views/system/subsys/index.vue");
 // 岗位管理
 const systemPost = () => import("../views/system/post/index.vue");
 // 部门管理 
@@ -63,6 +65,7 @@ const componentMap = {
   role: systemRolePage,
   user: systemUserPage,
   menu: systemMenuPage,
+  subsys: systemSubsys,
 }
 
 // 模块图片
