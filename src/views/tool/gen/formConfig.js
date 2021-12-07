@@ -46,6 +46,13 @@ const importSearchForm = {
   // gutter: 10, // 表单块间隔
   form: [
     {
+      label: "数据源",
+      name: 'params[dataSource]',
+      value: '',
+      type: 'select', // input/select/dateMonth/dateWeek/dateTime/radioGroup/treeSelect/checkboxGroup/custom
+      getOptions: null
+    },
+    {
       label: "表名称",
       name: 'tableName',
       value: '',
