@@ -171,7 +171,7 @@ function loading (opt) {
       background: 'rgba(255, 255, 255, 0.3)',
       size: 24,
       lock: false,
-      iconColor: '',
+      iconColor: '#409eff',
     }
   }
 

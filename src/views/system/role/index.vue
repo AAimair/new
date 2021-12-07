@@ -9,8 +9,6 @@
             :class="{ shrink: topFormShrink }"
           >
             <alpIcon :size="16" type="svg" icon="miscChevronUpDouble24.svg" />
-            <!-- <alpIcon :icon='' v-if="topFormShrink" />
-            <FullscreenExitOutlined v-else /> -->
           </div>
           <span>角色列表</span>
         </div>
@@ -58,32 +56,6 @@
       </div>
     </div>
     <div class="tableView">
-      <!-- <div class="tableTopBtns">
-        <a-button size="small" @click="topSearch('add')">
-          <template #icon><PlusOutlined /></template>
-          新增
-        </a-button>
-        <a-button
-          size="small"
-          @click="topSearch('edit')"
-          :disabled="tableSelection.selectedRowKeys.length !== 1"
-        >
-          <template #icon><EditOutlined /></template>
-          修改
-        </a-button>
-        <a-button
-          size="small"
-          @click="topSearch('delete')"
-          :disabled="tableSelection.selectedRowKeys.length == 0"
-        >
-          <template #icon><DeleteOutlined /></template>
-          删除
-        </a-button>
-        <a-button size="small" @click="topSearch('export')">
-          <template #icon><PlusOutlined /></template>
-          导出
-        </a-button>
-      </div> -->
       <div class="table" :style="{ height: tableViewHeight + 'px' }">
         <a-table
           :columns="columns"
@@ -469,17 +441,26 @@ export default defineComponent({
   name: "systemRolePage",
   data: function () {
     return {
+      // 表格主键
       majorKey: "roleId",
       // 子系统下拉项
       subSysOpt: [],
+      // 顶部查询表单配置
       topForm: formConfig.topForm,
+      // 顶部查询表单收缩
       topFormShrink: false,
+      // 顶部查询表单高度
       topFormHeight: 0,
+      // 顶部查询表单初始化默认值
       topFormData: {},
+      // 表格勾选绑定数据
       tableSelection: {
+        // 选中ID集合
         selectedRowKeys: [],
+        // 勾选回调方法
         onChange: this.onSelectChange,
       },
+      // 表格分页配置
       pagination: {
         showTotal: (total) => `共 ${total} 条`,
         total: 1,
@@ -487,7 +468,9 @@ export default defineComponent({
         current: 1,
         pageSize: 10,
       },
+      // 表格数据
       tableData: [],
+      // 表格列配置
       columns: [
         // {
         //   dataIndex: "roleId",
@@ -527,23 +510,30 @@ export default defineComponent({
           slots: { customRender: "options" },
         },
       ],
+      // 表格视口高度
       tableViewHeight: 200,
+      // 表格行数据  新建/编辑 表单
       tableRowForm: formConfig.tableRowForm,
+      // 表格行数据  新建/编辑 表单 初始化数据
       tableRowFormData: ref({}),
+      // 表格行数据  弹窗配置
       rowConfig: {
         show: false,
         type: "edit", // add/edit
         data: [],
       },
+      // 分配数据权限  弹窗配置
       dataLimitConfig: {
         show: false,
         type: "edit", // add/edit
         data: null,
       },
+      // 分配数据权限  弹窗表单配置
       dataLimitForm: formConfig.dataLimitForm,
+      // 分配数据权限  弹窗表单  初始化表单值
       dataLimitFormData: ref({}),
 
-      // 菜单树 数据
+      // 菜单树 配置/选中 数据
       menuTreeData: [],
       menuExpandedKeys: [],
       allMenuNodeKeys: [],
@@ -740,7 +730,6 @@ export default defineComponent({
           loading.close();
         });
     },
-
     // 获取分配用户列表
     getAllotUserList: function (params) {
       var queryParams = {
@@ -803,14 +792,12 @@ export default defineComponent({
           loading.close();
         });
     },
-
     // 收缩顶部查询表单
     shrinkTopForm: function () {
       this.topFormShrink = !this.topFormShrink;
       this.tableViewHeight +=
         this.topFormHeight * (this.topFormShrink ? 1 : -1);
     },
-
     // 新增/修改/删除/导出
     genInterface: function (type, data) {
       switch (type) {
@@ -879,7 +866,6 @@ export default defineComponent({
           });
       }
     },
-
     // 顶部查询  方法
     topSearch: function (type) {
       var form = this.$refs["topForm"];
@@ -1046,7 +1032,6 @@ export default defineComponent({
           break;
       }
     },
-
     // 项目操作
     itemOptions: function (type, item) {
       // console.log(type, item)
@@ -1197,7 +1182,6 @@ export default defineComponent({
           break;
       }
     },
-
     // table行选中事件
     onSelectChange: function (selectedRowKeys) {
       // console.log("selectedRowKeys changed: ", selectedRowKeys);
@@ -1212,7 +1196,6 @@ export default defineComponent({
       this.rowConfig.data = selData;
       this.tableSelection.selectedRowKeys = selectedRowKeys;
     },
-
     // table行选中事件
     allotUserSelectChange: function (selectedRowKeys) {
       // console.log("selectedRowKeys changed: ", selectedRowKeys);
@@ -1241,7 +1224,6 @@ export default defineComponent({
       this.allotUserConfig.selUserData = selData;
       this.allotUserConfig.userTableSelection.selectedRowKeys = selectedRowKeys;
     },
-
     // 菜单权限控制变更
     controlChange: function (type) {
       switch (type) {
@@ -1286,14 +1268,12 @@ export default defineComponent({
           break;
       }
     },
-
     // table 分页数量变更
     tablePageChange: function (page) {
       var form = this.$refs["topForm"];
       var data = form.getFormData().formData;
       this.getList(data);
     },
-
     // 分配用户/选择用户  分页
     allotUserTablePageChange: function (type) {
       // console.log(type)
@@ -1309,7 +1289,6 @@ export default defineComponent({
         this.getAllotAddUserList(data);
       }
     },
-
     // 表格数据  新增 / 修改
     submitConfig: function (state) {
       if (state) {
