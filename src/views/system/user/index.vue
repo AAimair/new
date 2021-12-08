@@ -111,6 +111,7 @@
             :rowKey="majorKey"
             :scroll="{ y: tableViewHeight - 40 }"
             bordered
+            :customRow="customRow"
           >
             <template #status="{ text: row }">
               <span class="card" :class="{ err: row.status !== '0' }">{{
@@ -118,7 +119,7 @@
               }}</span>
             </template>
             <template #options="{ text: row }">
-              <div class="rowBtns">
+              <div class="rowBtns" @click.stop="">
                 <a-button
                   size="small"
                   type="text"
@@ -716,6 +717,21 @@ export default defineComponent({
       });
       this.rowConfig.data = selData;
       this.tableSelection.selectedRowKeys = selectedRowKeys;
+    },
+    // 点击行
+    customRow: function (record, idx) {
+      return {
+        onClick: event => {
+          var selId = record[this.majorKey];
+          var selIdx = this.tableSelection.selectedRowKeys.indexOf(selId);
+          if(selIdx!=-1){
+            this.tableSelection.selectedRowKeys.splice(selIdx, 1);
+          }else{
+            this.tableSelection.selectedRowKeys.push(selId);
+          }
+          this.onSelectChange(this.tableSelection.selectedRowKeys);
+        }
+      }
     },
     // table 分页数量变更
     tablePageChange: function (page) {

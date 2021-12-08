@@ -88,7 +88,7 @@
               </div>
             </template>
             <template #options="{ text: row }">
-              <div class="rowBtns">
+              <div class="rowBtns" >
                 <a-button
                   size="small"
                   type="text"
@@ -196,6 +196,7 @@
             :rowKey="bottomMajorKey"
             :scroll="{ y: bottomTable.tableViewHeight - 40 }"
             bordered
+            :customRow="onBottomCustomRow"
           >
             <template #status="{ text: row }">
               <span class="card" :class="{ err: row !== '0' }">{{
@@ -203,7 +204,7 @@
               }}</span>
             </template>
             <template #options="{ text: row }">
-              <div class="rowBtns">
+              <div class="rowBtns" @click.stop="">
                 <a-button
                   size="small"
                   type="text"
@@ -880,6 +881,8 @@ export default defineComponent({
       var data = bottomForm.getFormData().formData;
       // 获取底部列表
       this.getBottomList(data);
+      this.bottomTable.selRow.data = [];
+      this.bottomTable.tableSelection.selectedRowKeys = [];
     },
     // 获取底部列表
     getBottomList: function (params) {
@@ -924,6 +927,21 @@ export default defineComponent({
       });
       this.bottomTable.selRow.data = selData;
       this.bottomTable.tableSelection.selectedRowKeys = selectedRowKeys;
+    },
+    // 点击行
+    onBottomCustomRow: function (record, idx) {
+      return {
+        onClick: event => {
+          var selId = record[this.bottomMajorKey];
+          var selIdx = this.bottomTable.tableSelection.selectedRowKeys.indexOf(selId);
+          if(selIdx!=-1){
+            this.bottomTable.tableSelection.selectedRowKeys.splice(selIdx, 1);
+          }else{
+            this.bottomTable.tableSelection.selectedRowKeys.push(selId);
+          }
+          this.onBottomSelectChange(this.bottomTable.tableSelection.selectedRowKeys);
+        }
+      }
     },
     // table 分页数量变更
     bottomTablePageChange: function (page) {

@@ -4,7 +4,7 @@
     v-model:visible="show"
     width="1000px"  
     append-to-body 
-    class="editPopup"
+    class="genEditPopup"
     >
     <template #footer>
       <a-button key="back" @click="submitConfig(false)">取消</a-button>
@@ -28,160 +28,162 @@
         key="field"
         :forceRender="true"
       >
-        <a-table
-          v-if="fieldTableLoading"
-          :columns="columns"
-          :data-source="tableData"
-          :pagination="false"
-          size="small"
-          :scroll="{ y: 500, x: 'true'}"
-          bordered
-        >
-          <template #index="scope">{{scope.index+1}}</template>
-          <template #columnComment="scope">
-            <a-input v-model:value="tableData[scope.index].columnComment"/>
-          </template>
-          <template #javaType="scope">
-            <div class="tableSelect">
-              <select
-                v-model="tableData[scope.index].javaType"
-                >
-                <option value="Long">Long</option>
-                <option value="String">String</option>
-                <option value="Integer">Integer</option>
-                <option value="Double">Double</option>
-                <option value="BigDecimal">BigDecimal</option>
-                <option value="Date">Date</option>
-              </select>
-              <span class="closeBtn" @click="tableData[scope.index].columnComment = ''"></span>
-            </div>
-            <!-- <a-select
-              ref="select"
-              size="small"
-              v-model:value="tableData[scope.index].javaType"
-              style="width: 100%"
-            >
-              <a-select-option value="Long">Long</a-select-option>
-              <a-select-option value="String">String</a-select-option>
-              <a-select-option value="Integer">Integer</a-select-option>
-              <a-select-option value="Double">Double</a-select-option>
-              <a-select-option value="BigDecimal">BigDecimal</a-select-option>
-              <a-select-option value="Date">Date</a-select-option>
-            </a-select> -->
-          </template>
-          <template #javaField="scope">
-            <a-input v-model:value="tableData[scope.index].javaField"/>
-          </template>
-          <template #isInsert="scope">
-            <a-checkbox v-model:checked="tableData[scope.index].isInsert" value="1"></a-checkbox>
-          </template>
-          <template #isEdit="scope">
-            <a-checkbox v-model:checked="tableData[scope.index].isEdit" value="1"></a-checkbox>
-          </template>
-          <template #isList="scope">
-            <a-checkbox v-model:checked="tableData[scope.index].isList" value="1"></a-checkbox>
-          </template>
-          <template #isQuery="scope">
-            <a-checkbox v-model:checked="tableData[scope.index].isQuery" value="1"></a-checkbox>
-          </template>
-          <template #queryType="scope">
-            <div class="tableSelect">
-              <select
-                v-model="tableData[scope.index].queryType"
-                >
-                <option value="EQ">=</option>
-                <option value="NE">!=</option>
-                <option value="GT">&gt;</option>
-                <option value="GTE">&gt;=</option>
-                <option value="LT">&lt;</option>
-                <option value="LTE">&lt;=</option>
-                <option value="LIKE">LIKE</option>
-                <option value="BETWEEN">BETWEEN</option>
-              </select>
-              <span class="closeBtn" @click="tableData[scope.index].queryType = ''"></span>
-            </div>
-            <!-- <a-select
-              ref="select"
-              size="small"
-              v-model:value="tableData[scope.index].queryType"
-              style="width: 100%"
-            >
-              <a-select-option value="EQ">=</a-select-option>
-              <a-select-option value="NE">!=</a-select-option>
-              <a-select-option value="GT">&gt;</a-select-option>
-              <a-select-option value="GTE">&gt;=</a-select-option>
-              <a-select-option value="LT">&lt;</a-select-option>
-              <a-select-option value="LTE">&lt;=</a-select-option>
-              <a-select-option value="LIKE">LIKE</a-select-option>
-              <a-select-option value="BETWEEN">BETWEEN</a-select-option>
-            </a-select> -->
-          </template>
-          <template #isRequired="scope">
-            <a-checkbox v-model:checked="tableData[scope.index].isRequired" value="1"></a-checkbox>
-          </template>
-          <template #htmlType="scope">
-            <div class="tableSelect">
-              <select
-                v-model="tableData[scope.index].htmlType"
-                >
-                <option value="input">文本框</option>
-                <option value="textarea">文本域</option>
-                <option value="select">下拉框</option>
-                <option value="radio">单选框</option>
-                <option value="checkbox">复选框</option>
-                <option value="checkbox">复选框</option>
-                <option value="datetime">日期控件</option>
-                <option value="imageUpload">图片上传</option>
-                <option value="fileUpload">文件上传</option>
-                <option value="editor">富文本控件</option>
-              </select>
-              <span class="closeBtn" @click="tableData[scope.index].htmlType = ''"></span>
-            </div>
-            <!-- <a-select
-              ref="select"
-              size="small"
-              v-model:value="tableData[scope.index].htmlType"
-              style="width: 100%"
-            >
-              <a-select-option value="input">文本框</a-select-option>
-              <a-select-option value="textarea">文本域</a-select-option>
-              <a-select-option value="select">下拉框</a-select-option>
-              <a-select-option value="radio">单选框</a-select-option>
-              <a-select-option value="checkbox">复选框</a-select-option>
-              <a-select-option value="checkbox">复选框</a-select-option>
-              <a-select-option value="datetime">日期控件</a-select-option>
-              <a-select-option value="imageUpload">图片上传</a-select-option>
-              <a-select-option value="fileUpload">文件上传</a-select-option>
-              <a-select-option value="editor">富文本控件</a-select-option>
-            </a-select> -->
-          </template>
-          <template #dictType="scope">
-            <div class="tableSelect">
-              <select
-                v-model="tableData[scope.index].dictType"
-                >
-                <option 
+        <div class="tableView">
+          <a-table
+            v-if="fieldTableLoading"
+            :columns="columns"
+            :data-source="tableData"
+            :pagination="false"
+            size="small"
+            :scroll="{ y: 500, x: 'true'}"
+            bordered
+          >
+            <template #index="scope">{{scope.index+1}}</template>
+            <template #columnComment="scope">
+              <a-input v-model:value="tableData[scope.index].columnComment"/>
+            </template>
+            <template #javaType="scope">
+              <div class="tableSelect">
+                <select
+                  v-model="tableData[scope.index].javaType"
+                  >
+                  <option value="Long">Long</option>
+                  <option value="String">String</option>
+                  <option value="Integer">Integer</option>
+                  <option value="Double">Double</option>
+                  <option value="BigDecimal">BigDecimal</option>
+                  <option value="Date">Date</option>
+                </select>
+                <span class="closeBtn" @click="tableData[scope.index].columnComment = ''"></span>
+              </div>
+              <!-- <a-select
+                ref="select"
+                size="small"
+                v-model:value="tableData[scope.index].javaType"
+                style="width: 100%"
+              >
+                <a-select-option value="Long">Long</a-select-option>
+                <a-select-option value="String">String</a-select-option>
+                <a-select-option value="Integer">Integer</a-select-option>
+                <a-select-option value="Double">Double</a-select-option>
+                <a-select-option value="BigDecimal">BigDecimal</a-select-option>
+                <a-select-option value="Date">Date</a-select-option>
+              </a-select> -->
+            </template>
+            <template #javaField="scope">
+              <a-input v-model:value="tableData[scope.index].javaField"/>
+            </template>
+            <template #isInsert="scope">
+              <a-checkbox v-model:checked="tableData[scope.index].isInsert" value="1"></a-checkbox>
+            </template>
+            <template #isEdit="scope">
+              <a-checkbox v-model:checked="tableData[scope.index].isEdit" value="1"></a-checkbox>
+            </template>
+            <template #isList="scope">
+              <a-checkbox v-model:checked="tableData[scope.index].isList" value="1"></a-checkbox>
+            </template>
+            <template #isQuery="scope">
+              <a-checkbox v-model:checked="tableData[scope.index].isQuery" value="1"></a-checkbox>
+            </template>
+            <template #queryType="scope">
+              <div class="tableSelect">
+                <select
+                  v-model="tableData[scope.index].queryType"
+                  >
+                  <option value="EQ">=</option>
+                  <option value="NE">!=</option>
+                  <option value="GT">&gt;</option>
+                  <option value="GTE">&gt;=</option>
+                  <option value="LT">&lt;</option>
+                  <option value="LTE">&lt;=</option>
+                  <option value="LIKE">LIKE</option>
+                  <option value="BETWEEN">BETWEEN</option>
+                </select>
+                <span class="closeBtn" @click="tableData[scope.index].queryType = ''"></span>
+              </div>
+              <!-- <a-select
+                ref="select"
+                size="small"
+                v-model:value="tableData[scope.index].queryType"
+                style="width: 100%"
+              >
+                <a-select-option value="EQ">=</a-select-option>
+                <a-select-option value="NE">!=</a-select-option>
+                <a-select-option value="GT">&gt;</a-select-option>
+                <a-select-option value="GTE">&gt;=</a-select-option>
+                <a-select-option value="LT">&lt;</a-select-option>
+                <a-select-option value="LTE">&lt;=</a-select-option>
+                <a-select-option value="LIKE">LIKE</a-select-option>
+                <a-select-option value="BETWEEN">BETWEEN</a-select-option>
+              </a-select> -->
+            </template>
+            <template #isRequired="scope">
+              <a-checkbox v-model:checked="tableData[scope.index].isRequired" value="1"></a-checkbox>
+            </template>
+            <template #htmlType="scope">
+              <div class="tableSelect">
+                <select
+                  v-model="tableData[scope.index].htmlType"
+                  >
+                  <option value="input">文本框</option>
+                  <option value="textarea">文本域</option>
+                  <option value="select">下拉框</option>
+                  <option value="radio">单选框</option>
+                  <option value="checkbox">复选框</option>
+                  <option value="checkbox">复选框</option>
+                  <option value="datetime">日期控件</option>
+                  <option value="imageUpload">图片上传</option>
+                  <option value="fileUpload">文件上传</option>
+                  <option value="editor">富文本控件</option>
+                </select>
+                <span class="closeBtn" @click="tableData[scope.index].htmlType = ''"></span>
+              </div>
+              <!-- <a-select
+                ref="select"
+                size="small"
+                v-model:value="tableData[scope.index].htmlType"
+                style="width: 100%"
+              >
+                <a-select-option value="input">文本框</a-select-option>
+                <a-select-option value="textarea">文本域</a-select-option>
+                <a-select-option value="select">下拉框</a-select-option>
+                <a-select-option value="radio">单选框</a-select-option>
+                <a-select-option value="checkbox">复选框</a-select-option>
+                <a-select-option value="checkbox">复选框</a-select-option>
+                <a-select-option value="datetime">日期控件</a-select-option>
+                <a-select-option value="imageUpload">图片上传</a-select-option>
+                <a-select-option value="fileUpload">文件上传</a-select-option>
+                <a-select-option value="editor">富文本控件</a-select-option>
+              </a-select> -->
+            </template>
+            <template #dictType="scope">
+              <div class="tableSelect">
+                <select
+                  v-model="tableData[scope.index].dictType"
+                  >
+                  <option 
+                    v-for="opt in dictOptions" 
+                    :key="opt.dictType" 
+                    :value="opt.dictType"
+                  >{{opt.dictName}}</option>
+                </select>
+                <span class="closeBtn" @click="tableData[scope.index].dictType = ''"></span>
+              </div>
+              <!-- <a-select
+                ref="select"
+                size="small"
+                v-model:value="tableData[scope.index].dictType"
+                style="width: 100%"
+              >
+                <a-select-option 
                   v-for="opt in dictOptions" 
                   :key="opt.dictType" 
                   :value="opt.dictType"
-                >{{opt.dictName}}</option>
-              </select>
-              <span class="closeBtn" @click="tableData[scope.index].dictType = ''"></span>
-            </div>
-            <!-- <a-select
-              ref="select"
-              size="small"
-              v-model:value="tableData[scope.index].dictType"
-              style="width: 100%"
-            >
-              <a-select-option 
-                v-for="opt in dictOptions" 
-                :key="opt.dictType" 
-                :value="opt.dictType"
-              >{{opt.dictName}}</a-select-option>
-            </a-select> -->
-          </template>
-        </a-table>
+                >{{opt.dictName}}</a-select-option>
+              </a-select> -->
+            </template>
+          </a-table>
+        </div>
       </a-tab-pane>
       <a-tab-pane 
         tab="生成信息"
@@ -506,7 +508,7 @@ export default defineComponent({
     activeKey: function (val) {
       if(val == 'field' && !this.fieldTableLoading){
         var loading = this.$loading({
-          target: '.editPopup',
+          target: '.editPopup>.ant-modal-content',
           background: 'rgba(255,255,255,0.3)',
           size: 24,
           iconColor: '#00678C',
@@ -514,7 +516,7 @@ export default defineComponent({
         setTimeout(() => {
           this.fieldTableLoading = true;
           loading.close();
-        }, 200);
+        }, 500);
       }
     },
     show: function(val){
@@ -631,9 +633,13 @@ export default defineComponent({
 <style lang="less">
 @import url("../../../common/base.less");
 
-.editPopup{
+.genEditPopup{
   .ant-modal-body{
     padding: 10px 20px;
+  }
+
+  .tableView{
+    min-height: 300px;
   }
 
   .tableSelect{

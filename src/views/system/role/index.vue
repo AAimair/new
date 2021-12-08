@@ -66,6 +66,7 @@
           :rowKey="majorKey"
           :scroll="{ y: tableViewHeight - 40 }"
           bordered
+          :customRow="customRow"
         >
           <template #status="{ text: row }">
             <span class="card" :class="{ err: row.status !== '0' }">{{
@@ -73,7 +74,7 @@
             }}</span>
           </template>
           <template #options="{ text: row }">
-            <div class="rowBtns" v-if="row.roleKey != 'admin'">
+            <div class="rowBtns" v-if="row.roleKey != 'admin'" @click.stop="">
               <a-button
                 size="small"
                 type="text"
@@ -325,6 +326,7 @@
               :rowKey="allotUserConfig.majorKey"
               :scroll="{ y: tableViewHeight - 0 }"
               bordered
+              :customRow="allotUserCustomRow"
             >
               <template #status="{ text: row }">
                 <span class="card" :class="{ err: row.status !== '0' }">{{
@@ -332,7 +334,7 @@
                 }}</span>
               </template>
               <template #options="{ text: row }">
-                <div class="rowBtns">
+                <div class="rowBtns" @click.stop="">
                   <a-button
                     size="small"
                     type="text"
@@ -406,6 +408,7 @@
               :rowKey="allotUserConfig.majorKey"
               :scroll="{ y: 400 }"
               bordered
+              :customRow="selUserCustomRow"
             >
               <template #status="{ text: row }">
                 <span class="card" :class="{ err: row.status !== '0' }">{{
@@ -1196,6 +1199,21 @@ export default defineComponent({
       this.rowConfig.data = selData;
       this.tableSelection.selectedRowKeys = selectedRowKeys;
     },
+    // 点击行
+    customRow: function (record, idx) {
+      return {
+        onClick: event => {
+          var selId = record[this.majorKey];
+          var selIdx = this.tableSelection.selectedRowKeys.indexOf(selId);
+          if(selIdx!=-1){
+            this.tableSelection.selectedRowKeys.splice(selIdx, 1);
+          }else{
+            this.tableSelection.selectedRowKeys.push(selId);
+          }
+          this.onSelectChange(this.tableSelection.selectedRowKeys);
+        }
+      }
+    },
     // table行选中事件
     allotUserSelectChange: function (selectedRowKeys) {
       // console.log("selectedRowKeys changed: ", selectedRowKeys);
@@ -1210,6 +1228,21 @@ export default defineComponent({
       this.allotUserConfig.selData = selData;
       this.allotUserConfig.tableSelection.selectedRowKeys = selectedRowKeys;
     },
+    // 点击行
+    allotUserCustomRow: function (record, idx) {
+      return {
+        onClick: event => {
+          var selId = record[this.allotUserConfig.majorKey];
+          var selIdx = this.allotUserConfig.tableSelection.selectedRowKeys.indexOf(selId);
+          if(selIdx!=-1){
+            this.allotUserConfig.tableSelection.selectedRowKeys.splice(selIdx, 1);
+          }else{
+            this.allotUserConfig.tableSelection.selectedRowKeys.push(selId);
+          }
+          this.allotUserSelectChange(this.allotUserConfig.tableSelection.selectedRowKeys);
+        }
+      }
+    },
     // table行选中事件
     selUserSelectChange: function (selectedRowKeys) {
       // console.log("selectedRowKeys changed: ", selectedRowKeys);
@@ -1223,6 +1256,21 @@ export default defineComponent({
       });
       this.allotUserConfig.selUserData = selData;
       this.allotUserConfig.userTableSelection.selectedRowKeys = selectedRowKeys;
+    },
+    // table行选中事件
+    selUserCustomRow: function (record, idx) {
+      return {
+        onClick: event => {
+          var selId = record[this.allotUserConfig.majorKey];
+          var selIdx = this.allotUserConfig.userTableSelection.selectedRowKeys.indexOf(selId);
+          if(selIdx!=-1){
+            this.allotUserConfig.userTableSelection.selectedRowKeys.splice(selIdx, 1);
+          }else{
+            this.allotUserConfig.userTableSelection.selectedRowKeys.push(selId);
+          }
+          this.allotUserSelectChange(this.allotUserConfig.userTableSelection.selectedRowKeys);
+        }
+      }
     },
     // 菜单权限控制变更
     controlChange: function (type) {
