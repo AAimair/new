@@ -187,6 +187,11 @@ function loading (opt) {
   }else{
     pEl = opt.target;
   }
+
+  if(!pEl){
+    pEl = document.body;
+  }
+
   if(pEl.style.position==''|| pEl.style.position=='static'){
     pEl.classList.add("alp-loading-parent--relative");
   } 
