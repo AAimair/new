@@ -29,7 +29,7 @@
         :forceRender="true"
       >
         <a-table
-          v-if="activeKey=='field'"
+          v-if="fieldTableLoading"
           :columns="columns"
           :data-source="tableData"
           :pagination="false"
@@ -42,7 +42,18 @@
             <a-input v-model:value="tableData[scope.index].columnComment"/>
           </template>
           <template #javaType="scope">
-            <a-select
+            <select
+              class="tableSelect"
+              v-model="tableData[scope.index].javaType"
+              >
+              <option value="Long">Long</option>
+              <option value="String">String</option>
+              <option value="Integer">Integer</option>
+              <option value="Double">Double</option>
+              <option value="BigDecimal">BigDecimal</option>
+              <option value="Date">Date</option>
+            </select>
+            <!-- <a-select
               ref="select"
               size="small"
               v-model:value="tableData[scope.index].javaType"
@@ -54,7 +65,7 @@
               <a-select-option value="Double">Double</a-select-option>
               <a-select-option value="BigDecimal">BigDecimal</a-select-option>
               <a-select-option value="Date">Date</a-select-option>
-            </a-select>
+            </a-select> -->
           </template>
           <template #javaField="scope">
             <a-input v-model:value="tableData[scope.index].javaField"/>
@@ -72,7 +83,20 @@
             <a-checkbox v-model:checked="tableData[scope.index].isQuery" value="1"></a-checkbox>
           </template>
           <template #queryType="scope">
-            <a-select
+            <select
+              class="tableSelect"
+              v-model="tableData[scope.index].queryType"
+              >
+              <option value="EQ">=</option>
+              <option value="NE">!=</option>
+              <option value="GT">&gt;</option>
+              <option value="GTE">&gt;=</option>
+              <option value="LT">&lt;</option>
+              <option value="LTE">&lt;=</option>
+              <option value="LIKE">LIKE</option>
+              <option value="BETWEEN">BETWEEN</option>
+            </select>
+            <!-- <a-select
               ref="select"
               size="small"
               v-model:value="tableData[scope.index].queryType"
@@ -86,13 +110,28 @@
               <a-select-option value="LTE">&lt;=</a-select-option>
               <a-select-option value="LIKE">LIKE</a-select-option>
               <a-select-option value="BETWEEN">BETWEEN</a-select-option>
-            </a-select>
+            </a-select> -->
           </template>
           <template #isRequired="scope">
             <a-checkbox v-model:checked="tableData[scope.index].isRequired" value="1"></a-checkbox>
           </template>
           <template #htmlType="scope">
-            <a-select
+            <select
+              class="tableSelect"
+              v-model="tableData[scope.index].htmlType"
+              >
+              <option value="input">文本框</option>
+              <option value="textarea">文本域</option>
+              <option value="select">下拉框</option>
+              <option value="radio">单选框</option>
+              <option value="checkbox">复选框</option>
+              <option value="checkbox">复选框</option>
+              <option value="datetime">日期控件</option>
+              <option value="imageUpload">图片上传</option>
+              <option value="fileUpload">文件上传</option>
+              <option value="editor">富文本控件</option>
+            </select>
+            <!-- <a-select
               ref="select"
               size="small"
               v-model:value="tableData[scope.index].htmlType"
@@ -108,10 +147,20 @@
               <a-select-option value="imageUpload">图片上传</a-select-option>
               <a-select-option value="fileUpload">文件上传</a-select-option>
               <a-select-option value="editor">富文本控件</a-select-option>
-            </a-select>
+            </a-select> -->
           </template>
           <template #dictType="scope">
-            <a-select
+            <select
+              class="tableSelect"
+              v-model="tableData[scope.index].dictType"
+              >
+              <option 
+                v-for="opt in dictOptions" 
+                :key="opt.dictType" 
+                :value="opt.dictType"
+              >{{opt.dictName}}</option>
+            </select>
+            <!-- <a-select
               ref="select"
               size="small"
               v-model:value="tableData[scope.index].dictType"
@@ -122,7 +171,7 @@
                 :key="opt.dictType" 
                 :value="opt.dictType"
               >{{opt.dictName}}</a-select-option>
-            </a-select>
+            </a-select> -->
           </template>
         </a-table>
       </a-tab-pane>
@@ -310,6 +359,8 @@ export default defineComponent({
       ],
       // 所有表 及 表字段
       tables: [],
+      // 字段表格加载
+      fieldTableLoading: false,
       // 表格数据
       tableData: [],
       // 字典类型下拉列表
@@ -367,12 +418,13 @@ export default defineComponent({
       this.show = val;
       if(val){
         this.activeKey = 'basic';
+        this.fieldTableLoading = false;
         // 获取生成代码
         var loading = this.$loading({
           background: 'rgba(0,0,0,0.75)',
           size: 166,
           iconColor: '#00678C',
-        })
+        });
         this.genInterface('getField', this.data.tableId).then(res => {
           loading.close();
           // console.log(res);
@@ -441,6 +493,20 @@ export default defineComponent({
             this.superiorTree = tree;
           }
         });
+      }
+    },
+    activeKey: function (val) {
+      if(val == 'field' && !this.fieldTableLoading){
+        var loading = this.$loading({
+          target: '.editPopup',
+          background: 'rgba(255,255,255,0.3)',
+          size: 24,
+          iconColor: '#00678C',
+        });
+        setTimeout(() => {
+          this.fieldTableLoading = true;
+          loading.close();
+        }, 200);
       }
     },
     show: function(val){
@@ -561,6 +627,21 @@ export default defineComponent({
   .ant-modal-body{
     padding: 10px 20px;
   }
+
+  .tableSelect{
+    display: block;
+    width: 100%;
+    font-variant: tabular-nums;
+    position: relative;
+    padding: 4px 11px;
+    color: rgba(0,0,0,.85);
+    font-size: 12px;
+    background-color: #fff;
+    background-image: none;
+    border: 1px solid #969696;
+    border-radius: 2px;
+  }
+
   .group{
     height: 56px;
     >.label{
