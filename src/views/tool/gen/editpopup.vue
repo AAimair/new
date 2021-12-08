@@ -42,17 +42,19 @@
             <a-input v-model:value="tableData[scope.index].columnComment"/>
           </template>
           <template #javaType="scope">
-            <select
-              class="tableSelect"
-              v-model="tableData[scope.index].javaType"
-              >
-              <option value="Long">Long</option>
-              <option value="String">String</option>
-              <option value="Integer">Integer</option>
-              <option value="Double">Double</option>
-              <option value="BigDecimal">BigDecimal</option>
-              <option value="Date">Date</option>
-            </select>
+            <div class="tableSelect">
+              <select
+                v-model="tableData[scope.index].javaType"
+                >
+                <option value="Long">Long</option>
+                <option value="String">String</option>
+                <option value="Integer">Integer</option>
+                <option value="Double">Double</option>
+                <option value="BigDecimal">BigDecimal</option>
+                <option value="Date">Date</option>
+              </select>
+              <span class="closeBtn" @click="tableData[scope.index].columnComment = ''"></span>
+            </div>
             <!-- <a-select
               ref="select"
               size="small"
@@ -83,19 +85,21 @@
             <a-checkbox v-model:checked="tableData[scope.index].isQuery" value="1"></a-checkbox>
           </template>
           <template #queryType="scope">
-            <select
-              class="tableSelect"
-              v-model="tableData[scope.index].queryType"
-              >
-              <option value="EQ">=</option>
-              <option value="NE">!=</option>
-              <option value="GT">&gt;</option>
-              <option value="GTE">&gt;=</option>
-              <option value="LT">&lt;</option>
-              <option value="LTE">&lt;=</option>
-              <option value="LIKE">LIKE</option>
-              <option value="BETWEEN">BETWEEN</option>
-            </select>
+            <div class="tableSelect">
+              <select
+                v-model="tableData[scope.index].queryType"
+                >
+                <option value="EQ">=</option>
+                <option value="NE">!=</option>
+                <option value="GT">&gt;</option>
+                <option value="GTE">&gt;=</option>
+                <option value="LT">&lt;</option>
+                <option value="LTE">&lt;=</option>
+                <option value="LIKE">LIKE</option>
+                <option value="BETWEEN">BETWEEN</option>
+              </select>
+              <span class="closeBtn" @click="tableData[scope.index].queryType = ''"></span>
+            </div>
             <!-- <a-select
               ref="select"
               size="small"
@@ -116,21 +120,23 @@
             <a-checkbox v-model:checked="tableData[scope.index].isRequired" value="1"></a-checkbox>
           </template>
           <template #htmlType="scope">
-            <select
-              class="tableSelect"
-              v-model="tableData[scope.index].htmlType"
-              >
-              <option value="input">文本框</option>
-              <option value="textarea">文本域</option>
-              <option value="select">下拉框</option>
-              <option value="radio">单选框</option>
-              <option value="checkbox">复选框</option>
-              <option value="checkbox">复选框</option>
-              <option value="datetime">日期控件</option>
-              <option value="imageUpload">图片上传</option>
-              <option value="fileUpload">文件上传</option>
-              <option value="editor">富文本控件</option>
-            </select>
+            <div class="tableSelect">
+              <select
+                v-model="tableData[scope.index].htmlType"
+                >
+                <option value="input">文本框</option>
+                <option value="textarea">文本域</option>
+                <option value="select">下拉框</option>
+                <option value="radio">单选框</option>
+                <option value="checkbox">复选框</option>
+                <option value="checkbox">复选框</option>
+                <option value="datetime">日期控件</option>
+                <option value="imageUpload">图片上传</option>
+                <option value="fileUpload">文件上传</option>
+                <option value="editor">富文本控件</option>
+              </select>
+              <span class="closeBtn" @click="tableData[scope.index].htmlType = ''"></span>
+            </div>
             <!-- <a-select
               ref="select"
               size="small"
@@ -150,16 +156,18 @@
             </a-select> -->
           </template>
           <template #dictType="scope">
-            <select
-              class="tableSelect"
-              v-model="tableData[scope.index].dictType"
-              >
-              <option 
-                v-for="opt in dictOptions" 
-                :key="opt.dictType" 
-                :value="opt.dictType"
-              >{{opt.dictName}}</option>
-            </select>
+            <div class="tableSelect">
+              <select
+                v-model="tableData[scope.index].dictType"
+                >
+                <option 
+                  v-for="opt in dictOptions" 
+                  :key="opt.dictType" 
+                  :value="opt.dictType"
+                >{{opt.dictName}}</option>
+              </select>
+              <span class="closeBtn" @click="tableData[scope.index].dictType = ''"></span>
+            </div>
             <!-- <a-select
               ref="select"
               size="small"
@@ -629,17 +637,44 @@ export default defineComponent({
   }
 
   .tableSelect{
-    display: block;
-    width: 100%;
-    font-variant: tabular-nums;
     position: relative;
-    padding: 4px 11px;
-    color: rgba(0,0,0,.85);
-    font-size: 12px;
-    background-color: #fff;
-    background-image: none;
-    border: 1px solid #969696;
-    border-radius: 2px;
+    >select{
+      display: block;
+      width: 100%;
+      font-variant: tabular-nums;
+      position: relative;
+      padding: 4px 25px 4px 11px;
+      color: rgba(0,0,0,.85);
+      font-size: 12px;
+      background-color: #fff;
+      background-image: none;
+      border: 1px solid #969696;
+      border-radius: 2px;
+    }
+    >.closeBtn{
+      display: none;
+      position: absolute;
+      width: 20px;
+      height: 20px;
+      line-height: 20px;
+      text-align: center;
+      color: #fff;
+      font-size: 14px;
+      top: 50%;
+      right: 5px;
+      transform: translate(0, -50%) scale(0.6);
+      border-radius: 50%;
+      overflow: hidden;
+      background-color: #bbb;
+      user-select: none;
+      cursor: pointer;
+      &::before{
+        content: 'X';
+      }
+    }
+    &:hover>.closeBtn{
+      display: block;
+    }
   }
 
   .group{
