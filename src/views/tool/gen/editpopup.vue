@@ -15,7 +15,7 @@
         >保存</a-button
       >
     </template>
-    <a-tabs v-model:activeKey="activeKey">
+    <a-tabs v-if="show" v-model:activeKey="activeKey">
       <a-tab-pane 
         tab="基本信息"
         key="basic"
@@ -29,6 +29,7 @@
         :forceRender="true"
       >
         <a-table
+          v-if="activeKey=='field'"
           :columns="columns"
           :data-source="tableData"
           :pagination="false"
@@ -365,8 +366,15 @@ export default defineComponent({
       // console.log('visible',val)
       this.show = val;
       if(val){
+        this.activeKey = 'basic';
         // 获取生成代码
+        var loading = this.$loading({
+          background: 'rgba(0,0,0,0.75)',
+          size: 166,
+          iconColor: '#00678C',
+        })
         this.genInterface('getField', this.data.tableId).then(res => {
+          loading.close();
           // console.log(res);
           if(res.data.code == 200){
             // 表格数据
@@ -416,6 +424,8 @@ export default defineComponent({
             });
             this.subTableNameOpts = otherTables;
           }
+        }).catch(err => {
+          loading.close();
         });
         // 获取字典的下接
         this.genInterface('getDictOptions', this.data.tableId).then(res => {
