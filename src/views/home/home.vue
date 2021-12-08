@@ -517,6 +517,7 @@ export default defineComponent({
           break;
         case 'logout':
           // 清空TOKEN
+          this.$axios.post('/logout');
           sessionStorage['token'] = '';
           document.cookie = 'token="";';
           this.$router.push("/login");
