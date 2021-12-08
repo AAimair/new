@@ -189,6 +189,7 @@
             v-if="importTable.show"
             ref="importTableSearchForm"
             :options="importTable.search"
+            :form_data="importTable.searchData"
           >
             <template #btns>
               <div class="btns">
@@ -340,6 +341,7 @@ export default defineComponent({
         show: false,
         title: "导入表",
         search: formConfig.importSearchForm,
+        searchData: {},
         columns: [
           {
             dataIndex: "tableName",
@@ -393,8 +395,27 @@ export default defineComponent({
   },
   created: function () {
     this.getList();
+    formConfig.importSearchForm.form[0].getOptions = this.getDataSource;
   },
   methods: {
+    // 获取数据源
+    getDataSource: function (data) {
+      var that = this;
+      return new Promise(resolve => {
+        this.$axios
+            .get("/tool/gen/dataSource", {})
+            .then((res) => {
+              if (res.data.code == 200) {
+                data.formData['params[dataSource]'] = res.data.data[0].value;
+                resolve(res.data.data);
+              } else {
+                this.$message.error(res.data.msg);
+              }
+            })
+            .catch((err) => {
+            });
+      })
+    },
     // 获取列表
     getList: function (params) {
       var queryParams = {
@@ -470,7 +491,7 @@ export default defineComponent({
           return this.$axios.get('/tool/gen/preview/' + data.tableId);
         case 'import':
           // 导入
-          return this.$axios.post("/tool/gen/importTable?tables="+data);
+          return this.$axios.post("/tool/gen/importTable?tables="+data.tables+"&dataSource="+data.dataSource);
         case 'delete':
           // 删除
           return this.$axios.delete('/tool/gen/'+data);
@@ -777,6 +798,8 @@ export default defineComponent({
     submitImportTable: function(state){
       if(state){
         var names = this.importTable.selData.map(o => o.tableName);
+        var searchForm = this.$refs["importTableSearchForm"];
+        var searchData = searchForm.getFormData().formData;
         if(!names.length){
           this.$message.error('选择要导入的表');
           return;
@@ -787,7 +810,8 @@ export default defineComponent({
           size: 166,
           iconColor: "#00678C",
         });
-        this.genInterface('import',names.join(',')).then(res => {
+        var queryData = {tables:names.join(','),dataSource:searchData['params[dataSource]']};
+        this.genInterface('import',queryData).then(res => {
           loading.close();
           if(res.data.code == 200){
             this.importTable.show = false;
