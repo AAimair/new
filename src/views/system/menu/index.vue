@@ -454,66 +454,73 @@ export default defineComponent({
           break;
         }
       }
+
+      // 获取菜单 数据
       if (targetNodeData) {
-        for(var k in this.formTemplate){
-          this.formData[k] = {
-            value: targetNodeData[k] || this.formTemplate[k]
+        this.genInterface('get', targetNodeData[this.majorKey]).then(res => {
+          if(res.data.code == 200){
+            for(var k in this.formTemplate){
+              this.formData[k] = {
+                // value: targetNodeData[k] || this.formTemplate[k]
+                value: res.data.data[k] || this.formTemplate[k]
+              }
+            }
+            // 外链地址
+            this.formData['remark_link'] = res.data.data.remark||'';
+            this.menuType = res.data.data.menuType;
+            this.menuIcon = res.data.data.icon;
+            this.menuComponent = res.data.data.component;
+            if(res.data.data.menuType == 'M'){
+              this.formType=2;
+              // 目录
+              this.formParentId = '0';
+    
+              // icon
+              this.form.form[2].hidden = false;
+              // pic
+              this.form.form[3].hidden = false;
+              this.form.form[3].span = 21;
+              // 目录描述
+              this.form.form[6].hidden = false;
+              // 模块关键字
+              this.form.form[9].rule[0].required = false;
+              // 其他隐藏
+              for(var i=7;i<12;i++){
+                this.form.form[i].hidden = true;
+              }
+              this.showDirectoryOpt = [{
+                label: '根目录',
+                value: '0'
+              }];
+    
+            }else if(res.data.data.menuType == 'C'){
+              this.formType = 4;
+              // icon
+              this.form.form[2].hidden = true;
+              // pic
+              this.form.form[3].hidden = false;
+              this.form.form[3].span = 12;
+    
+              // 目录描述
+              this.form.form[6].hidden = true;
+              // 模块关键字
+              this.form.form[9].rule[0].required = true;
+              // 其他隐藏
+              for(var i=7;i<12;i++){
+                this.form.form[i].hidden = false;
+              }
+              // 外链地址
+              this.form.form[8].hidden = res.data.data.isFrame=='0'?false:true;
+              this.showDirectoryOpt = JSON.parse(JSON.stringify(this.directoryOpt));
+    
+              // 菜单
+              this.formParentId = res.data.data.parentId;
+              // alpIcon:
+              this.menuComponent = /^alpIcon:/ig.test(res.data.data.component)?''+res.data.data.component.substr(9):'';
+            }
+            this.formUpdataKey++;
           }
-        }
-        // 外链地址
-        this.formData['remark_link'] = targetNodeData.remark||'';
-        this.menuType = targetNodeData.menuType;
-        this.menuIcon = targetNodeData.icon;
-        this.menuComponent = targetNodeData.component;
-        if(targetNodeData.menuType == 'M'){
-          this.formType=2;
-          // 目录
-          this.formParentId = '0';
-
-          // icon
-          this.form.form[2].hidden = false;
-          // pic
-          this.form.form[3].hidden = false;
-          this.form.form[3].span = 21;
-          // 目录描述
-          this.form.form[6].hidden = true;
-          // 模块关键字
-          this.form.form[9].rule[0].required = false;
-          // 其他隐藏
-          for(var i=7;i<12;i++){
-            this.form.form[i].hidden = true;
-          }
-          this.showDirectoryOpt = [{
-            label: '根目录',
-            value: '0'
-          }];
-
-        }else if(targetNodeData.menuType == 'C'){
-          this.formType = 4;
-          // icon
-          this.form.form[2].hidden = true;
-          // pic
-          this.form.form[3].hidden = false;
-          this.form.form[3].span = 12;
-
-          // 目录描述
-          this.form.form[6].hidden = true;
-          // 模块关键字
-          this.form.form[9].rule[0].required = true;
-          // 其他隐藏
-          for(var i=7;i<12;i++){
-            this.form.form[i].hidden = false;
-          }
-          // 外链地址
-          this.form.form[8].hidden = targetNodeData.isFrame=='0'?false:true;
-          this.showDirectoryOpt = JSON.parse(JSON.stringify(this.directoryOpt));
-
-          // 菜单
-          this.formParentId = targetNodeData.parentId;
-          // alpIcon:
-          this.menuComponent = /^alpIcon:/ig.test(targetNodeData.component)?''+targetNodeData.component.substr(9):'';
-        }
-        this.formUpdataKey++;
+        });
       }
     },
     // 检验父级表单项的父级ID

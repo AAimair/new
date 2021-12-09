@@ -10,14 +10,14 @@
       <h6>用户登录</h6>
       <div class="form">
         <div class="row">
-          <a-input v-model:value="userName" placeholder="用户名" />
+          <a-input v-model:value="userName" placeholder="用户名"/>
         </div>
         <div class="row">
-          <a-input v-model:value="userPwd" type="password" @keyup.enter="login" placeholder="密码" />
+          <a-input v-model:value="userPwd" type="password" @keyup.enter="login" placeholder="密码"/>
         </div>
         <div class="row" v-if="isVerify">
           <div class="verifyInput">
-            <a-input v-model:value="verify" placeholder="验证码" >
+            <a-input v-model:value="verify" placeholder="验证码"  @keyup.enter="login">
               <template #prefix>
                 <VerifiedOutlined />
               </template>
@@ -123,6 +123,7 @@ export default defineComponent({
           }else{
             loading.close();
             this.errStr = res.data.msg;
+            this.getVerify();
           }
         }).catch(err => {
           // console.log(err); 
