@@ -289,6 +289,7 @@ const bottomTableColumns = [
     dataIndex: "invokeTarget",
     key: "invokeTarget",
     title: "调用目标字符串",
+    ellipsis: true,
     align: 'center'
   }, {
     dataIndex: "jobMessage",

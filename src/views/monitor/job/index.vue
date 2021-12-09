@@ -110,90 +110,95 @@
             :pagination="false"
             :row-selection="{selectedRowKeys:topRowSelection, onChange: topSelectRows }"
             rowKey="jobId"
+            :customRow="(record) => customRow('top', record)"
             bordered
           >
             <template #status="{text, record}">
-              <a-switch
-                size="small"
-                :checked="text"
-                checkedValue="0"
-                unCheckedValue="1"
-                @click="rowHandle('top.status', record)"
-              />
+              <div @click.stop>
+                <a-switch
+                  size="small"
+                  :checked="text"
+                  checkedValue="0"
+                  unCheckedValue="1"
+                  @click="rowHandle('top.status', record)"
+                />
+              </div>
             </template>
             
             <template #action="{record}">
-              <a-button
-                type="link"
-                ghost
-                @click="rowHandle('top.edit', record)"
-              >
-                <template #icon>
-                  <EditOutlined/>
-                </template>
-                <span>编辑</span>
-              </a-button>
-              
-              <a-button
-                type="link"
-                ghost
-                @click="rowHandle('top.delete', record)"
-              >
-                <template #icon>
-                  <DeleteOutlined/>
-                </template>
-                <span>删除</span>
-              </a-button>
-              
-              <a-dropdown>
+              <div @click.stop>
                 <a-button
                   type="link"
                   ghost
-                  @click.prevent
+                  @click="rowHandle('top.edit', record)"
                 >
                   <template #icon>
-                    <DoubleRightOutlined/>
+                    <EditOutlined/>
                   </template>
-                  <span>更多</span>
+                  <span>编辑</span>
                 </a-button>
-                <template #overlay>
-                  <a-menu>
-                    <a-menu-item>
-                      <a-button
-                        type="text"
-                        @click="rowHandle('top.execute', record)"
-                      >
-                        <template #icon>
-                          <CaretRightOutlined/>
-                        </template>
-                        <span>执行一次</span>
-                      </a-button>
-                    </a-menu-item>
-                    <a-menu-item>
-                      <a-button
-                        type="text"
-                        @click="rowHandle('top.detail', record)"
-                      >
-                        <template #icon>
-                          <EyeOutlined/>
-                        </template>
-                        <span>任务详细</span>
-                      </a-button>
-                    </a-menu-item>
-                    <a-menu-item>
-                      <a-button
-                        type="text"
-                        @click="rowHandle('top.journal', record)"
-                      >
-                        <template #icon>
-                          <ControlOutlined/>
-                        </template>
-                        <span>调度日志</span>
-                      </a-button>
-                    </a-menu-item>
-                  </a-menu>
-                </template>
-              </a-dropdown>
+  
+                <a-button
+                  type="link"
+                  ghost
+                  @click="rowHandle('top.delete', record)"
+                >
+                  <template #icon>
+                    <DeleteOutlined/>
+                  </template>
+                  <span>删除</span>
+                </a-button>
+  
+                <a-dropdown>
+                  <a-button
+                    type="link"
+                    ghost
+                    @click.prevent
+                  >
+                    <template #icon>
+                      <DoubleRightOutlined/>
+                    </template>
+                    <span>更多</span>
+                  </a-button>
+                  <template #overlay>
+                    <a-menu>
+                      <a-menu-item>
+                        <a-button
+                          type="text"
+                          @click="rowHandle('top.execute', record)"
+                        >
+                          <template #icon>
+                            <CaretRightOutlined/>
+                          </template>
+                          <span>执行一次</span>
+                        </a-button>
+                      </a-menu-item>
+                      <a-menu-item>
+                        <a-button
+                          type="text"
+                          @click="rowHandle('top.detail', record)"
+                        >
+                          <template #icon>
+                            <EyeOutlined/>
+                          </template>
+                          <span>任务详细</span>
+                        </a-button>
+                      </a-menu-item>
+                      <a-menu-item>
+                        <a-button
+                          type="text"
+                          @click="rowHandle('top.journal', record)"
+                        >
+                          <template #icon>
+                            <ControlOutlined/>
+                          </template>
+                          <span>调度日志</span>
+                        </a-button>
+                      </a-menu-item>
+                    </a-menu>
+                  </template>
+                </a-dropdown>
+              </div>
             </template>
           </a-table>
         </div>
@@ -306,6 +311,7 @@
             :pagination="false"
             :row-selection="{selectedRowKeys:bottomRowSelection, onChange: bottomSelectRows}"
             rowKey="jobLogId"
+            :customRow="(record) => customRow('bottom', record)"
             bordered
           >
             <template #status="{text, record}">
@@ -313,16 +319,18 @@
             </template>
             
             <template #action="{record}">
-              <a-button
-                type="link"
-                ghost
-                @click="rowHandle('bottom.detail', record)"
-              >
-                <template #icon>
-                  <EyeOutlined/>
-                </template>
-                <span>详细</span>
-              </a-button>
+              <div @click.stop>
+                <a-button
+                  type="link"
+                  ghost
+                  @click="rowHandle('bottom.detail', record)"
+                >
+                  <template #icon>
+                    <EyeOutlined/>
+                  </template>
+                  <span>详细</span>
+                </a-button>
+              </div>
             </template>
           </a-table>
         </div>
@@ -974,10 +982,36 @@ export default defineComponent({
       if (type){
         // this.topDialogOptions.key ++;
         const cron = this.cronDialogOptions.cronData;
-        this.$refs.topForm.formData.cronExpression = cron;
+        this.$refs.topForm.setSingleData('cronExpression', cron);
       }
       this.cronDialogOptions.show = false;
-    }
+    },
+    // 点击行
+    customRow: function (type,record) {
+      return {
+        onClick: event => {
+          const options = {
+            top: {
+              key: 'jobId',
+              select: this.topRowSelection,
+            },
+            bottom: {
+              key: 'jobLogId',
+              select: this.bottomRowSelection
+            }
+          }
+          // 选中行 key
+          const rowKey = record[options[type].key];
+          // 选中下标
+          const idx = options[type].select.findIndex(r => r === rowKey);
+          if (idx !== -1){
+            options[type].select.splice(idx, 1);
+          }else {
+            options[type].select.push(rowKey);
+          }
+        }
+      }
+    },
   }
 })
 </script>
