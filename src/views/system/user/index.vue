@@ -755,9 +755,10 @@ export default defineComponent({
             // 删除用户密码
             if(this.rowConfig.type=='edit'){
               delete(queryParams.password);
+            }else{
+              queryParams.password = this.$md5(queryParams.password.trim());
             }
             queryParams.deptId = this.deptId;
-            // queryParams.password = this.$md5(queryParams.password.trim());
             var loading = this.$loading({
               background: "rgba(0,0,0,0.0)",
               size: 166,
