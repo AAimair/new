@@ -753,7 +753,9 @@ export default defineComponent({
             // 合并表单项内容
             queryParams = Object.assign(queryParams, res.form);
             // 删除用户密码
-            delete(queryParams.password);
+            if(this.rowConfig.type=='edit'){
+              delete(queryParams.password);
+            }
             queryParams.deptId = this.deptId;
             // queryParams.password = this.$md5(queryParams.password.trim());
             var loading = this.$loading({
