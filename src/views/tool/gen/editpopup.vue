@@ -73,7 +73,7 @@
             <template #javaField="scope">
               <a-input v-model:value="tableData[scope.index].javaField"/>
             </template>
-            <template #isInsert="scope">
+            <!-- <template #isInsert="scope">
               <a-checkbox v-model:checked="tableData[scope.index].isInsert" value="1"></a-checkbox>
             </template>
             <template #isEdit="scope">
@@ -84,7 +84,7 @@
             </template>
             <template #isQuery="scope">
               <a-checkbox v-model:checked="tableData[scope.index].isQuery" value="1"></a-checkbox>
-            </template>
+            </template> -->
             <template #queryType="scope">
               <div class="tableSelect">
                 <select
@@ -117,13 +117,14 @@
                 <a-select-option value="BETWEEN">BETWEEN</a-select-option>
               </a-select> -->
             </template>
-            <template #isRequired="scope">
+            <!-- <template #isRequired="scope">
               <a-checkbox v-model:checked="tableData[scope.index].isRequired" value="1"></a-checkbox>
-            </template>
+            </template> -->
             <template #htmlType="scope">
               <div class="tableSelect">
                 <select
                   v-model="tableData[scope.index].htmlType"
+                  disabled
                   >
                   <option value="input">文本框</option>
                   <option value="textarea">文本域</option>
@@ -136,7 +137,7 @@
                   <option value="fileUpload">文件上传</option>
                   <option value="editor">富文本控件</option>
                 </select>
-                <span class="closeBtn" @click="tableData[scope.index].htmlType = ''"></span>
+                <!-- <span class="closeBtn" @click="tableData[scope.index].htmlType = ''"></span> -->
               </div>
               <!-- <a-select
                 ref="select"
@@ -156,7 +157,7 @@
                 <a-select-option value="editor">富文本控件</a-select-option>
               </a-select> -->
             </template>
-            <template #dictType="scope">
+            <!-- <template #dictType="scope">
               <div class="tableSelect">
                 <select
                   v-model="tableData[scope.index].dictType"
@@ -169,7 +170,7 @@
                 </select>
                 <span class="closeBtn" @click="tableData[scope.index].dictType = ''"></span>
               </div>
-              <!-- <a-select
+              <a-select
                 ref="select"
                 size="small"
                 v-model:value="tableData[scope.index].dictType"
@@ -180,8 +181,8 @@
                   :key="opt.dictType" 
                   :value="opt.dictType"
                 >{{opt.dictName}}</a-select-option>
-              </a-select> -->
-            </template>
+              </a-select>
+            </template> -->
           </a-table>
         </div>
       </a-tab-pane>
@@ -317,55 +318,60 @@ export default defineComponent({
           width: 150,
           title: "Java属性",
           slots: { customRender: "javaField" },
-        },{
-          dataIndex: "isInsert",
-          key: "isInsert",
-          width: 50,
-          title: "插入",
-          slots: { customRender: "isInsert" },
-        },{
-          dataIndex: "isEdit",
-          key: "isEdit",
-          width: 50,
-          title: "编辑",
-          slots: { customRender: "isEdit" },
-        },{
-          dataIndex: "isList",
-          key: "isList",
-          width: 50,
-          title: "列表",
-          slots: { customRender: "isList" },
-        },{
-          dataIndex: "isQuery",
-          key: "isQuery",
-          width: 50,
-          title: "查询",
-          slots: { customRender: "isQuery" },
-        },{
+        },
+        // {
+        //   dataIndex: "isInsert",
+        //   key: "isInsert",
+        //   width: 50,
+        //   title: "插入",
+        //   slots: { customRender: "isInsert" },
+        // },{
+        //   dataIndex: "isEdit",
+        //   key: "isEdit",
+        //   width: 50,
+        //   title: "编辑",
+        //   slots: { customRender: "isEdit" },
+        // },{
+        //   dataIndex: "isList",
+        //   key: "isList",
+        //   width: 50,
+        //   title: "列表",
+        //   slots: { customRender: "isList" },
+        // },{
+        //   dataIndex: "isQuery",
+        //   key: "isQuery",
+        //   width: 50,
+        //   title: "查询",
+        //   slots: { customRender: "isQuery" },
+        // },
+        {
           dataIndex: "queryType",
           key: "queryType",
           width: 150,
           title: "查询方式",
           slots: { customRender: "queryType" },
-        },{
-          dataIndex: "isRequired",
-          key: "isRequired",
-          width: 50,
-          title: "必填",
-          slots: { customRender: "isRequired" },
-        },{
+        },
+        // {
+        //   dataIndex: "isRequired",
+        //   key: "isRequired",
+        //   width: 50,
+        //   title: "必填",
+        //   slots: { customRender: "isRequired" },
+        // },
+        {
           dataIndex: "htmlType",
           key: "htmlType",
           width: 150,
           title: "显示类型",
           slots: { customRender: "htmlType" },
-        },{
-          dataIndex: "dictType",
-          key: "dictType",
-          width: 150,
-          title: "字典类型",
-          slots: { customRender: "dictType" },
-        }
+        },
+        // {
+        //   dataIndex: "dictType",
+        //   key: "dictType",
+        //   width: 150,
+        //   title: "字典类型",
+        //   slots: { customRender: "dictType" },
+        // }
       ],
       // 所有表 及 表字段
       tables: [],

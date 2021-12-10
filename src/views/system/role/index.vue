@@ -1203,14 +1203,16 @@ export default defineComponent({
     customRow: function (record, idx) {
       return {
         onClick: event => {
-          var selId = record[this.majorKey];
-          var selIdx = this.tableSelection.selectedRowKeys.indexOf(selId);
-          if(selIdx!=-1){
-            this.tableSelection.selectedRowKeys.splice(selIdx, 1);
-          }else{
-            this.tableSelection.selectedRowKeys.push(selId);
+          var selId = record[this.majorKey], selArr = this.tableSelection.selectedRowKeys;
+          var selIdx = selArr.indexOf(selId);
+          if(selArr.length>1 && (selIdx!=-1)){
+            // 多选
+            selArr.splice(selIdx, 1);
+          }else if(selArr.length<2){
+            // 单选
+            selArr = [selId];
           }
-          this.onSelectChange(this.tableSelection.selectedRowKeys);
+          this.onSelectChange(selArr);
         }
       }
     },
@@ -1232,14 +1234,16 @@ export default defineComponent({
     allotUserCustomRow: function (record, idx) {
       return {
         onClick: event => {
-          var selId = record[this.allotUserConfig.majorKey];
-          var selIdx = this.allotUserConfig.tableSelection.selectedRowKeys.indexOf(selId);
-          if(selIdx!=-1){
-            this.allotUserConfig.tableSelection.selectedRowKeys.splice(selIdx, 1);
-          }else{
-            this.allotUserConfig.tableSelection.selectedRowKeys.push(selId);
+          var selId = record[this.allotUserConfig.majorKey], selArr = this.allotUserConfig.tableSelection.selectedRowKeys;
+          var selIdx = selArr.indexOf(selId);
+          if(selArr.length>1 && (selIdx!=-1)){
+            // 多选
+            selArr.splice(selIdx, 1);
+          }else if(selArr.length<2){
+            // 单选
+            selArr = [selId];
           }
-          this.allotUserSelectChange(this.allotUserConfig.tableSelection.selectedRowKeys);
+          this.allotUserSelectChange(selArr);
         }
       }
     },
@@ -1261,14 +1265,16 @@ export default defineComponent({
     selUserCustomRow: function (record, idx) {
       return {
         onClick: event => {
-          var selId = record[this.allotUserConfig.majorKey];
-          var selIdx = this.allotUserConfig.userTableSelection.selectedRowKeys.indexOf(selId);
-          if(selIdx!=-1){
-            this.allotUserConfig.userTableSelection.selectedRowKeys.splice(selIdx, 1);
-          }else{
-            this.allotUserConfig.userTableSelection.selectedRowKeys.push(selId);
+          var selId = record[this.allotUserConfig.majorKey], selArr = this.allotUserConfig.userTableSelection.selectedRowKeys;
+          var selIdx = selArr.indexOf(selId);
+          if(selArr.length>1 && (selIdx!=-1)){
+            // 多选
+            selArr.splice(selIdx, 1);
+          }else if(selArr.length<2){
+            // 单选
+            selArr = [selId];
           }
-          this.allotUserSelectChange(this.allotUserConfig.userTableSelection.selectedRowKeys);
+          this.selUserSelectChange(selArr);
         }
       }
     },

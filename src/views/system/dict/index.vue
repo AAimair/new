@@ -288,6 +288,7 @@ export default defineComponent({
       topMajorKey: 'dictId',
       topTable: {
         tableSelection: {
+          type: 'radio',
           selectedRowKeys: [],
           onChange: this.onTopSelectChange,
         },
@@ -932,14 +933,16 @@ export default defineComponent({
     onBottomCustomRow: function (record, idx) {
       return {
         onClick: event => {
-          var selId = record[this.bottomMajorKey];
-          var selIdx = this.bottomTable.tableSelection.selectedRowKeys.indexOf(selId);
-          if(selIdx!=-1){
-            this.bottomTable.tableSelection.selectedRowKeys.splice(selIdx, 1);
-          }else{
-            this.bottomTable.tableSelection.selectedRowKeys.push(selId);
+          var selId = record[this.bottomMajorKey], selArr = this.bottomTable.tableSelection.selectedRowKeys;
+          var selIdx = selArr.indexOf(selId);
+          if(selArr.length>1 && (selIdx!=-1)){
+            // 多选
+            selArr.splice(selIdx, 1);
+          }else if(selArr.length<2){
+            // 单选
+            selArr = [selId];
           }
-          this.onBottomSelectChange(this.bottomTable.tableSelection.selectedRowKeys);
+          this.onBottomSelectChange(selArr);
         }
       }
     },
@@ -1134,6 +1137,14 @@ export default defineComponent({
       }
     }
   }
+
+  // >.top{
+  //   >.tableView{
+  //     .ant-table-selection-column>*{
+  //       display: none;
+  //     }
+  //   }
+  // }
 
   > .bottom {
     margin-top: 10px;

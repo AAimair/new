@@ -478,11 +478,18 @@ export default defineComponent({
           const rowKey = record[this.tableKey];
           // 选中下标
           const idx = this.rowSelection.findIndex(r => r === rowKey);
-          if (idx !== -1) {
+          if(this.rowSelection.length>1 && (idx!=-1)){
+            // 多选
             this.rowSelection.splice(idx, 1);
-          } else {
-            this.rowSelection.push(rowKey);
+          }else if(this.rowSelection.length<2){
+            // 单选
+            this.rowSelection = [rowKey];
           }
+          // if (idx !== -1) {
+          //   this.rowSelection.splice(idx, 1);
+          // } else {
+          //   this.rowSelection.push(rowKey);
+          // }
         }
       }
     },

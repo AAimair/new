@@ -1004,11 +1004,18 @@ export default defineComponent({
           const rowKey = record[options[type].key];
           // 选中下标
           const idx = options[type].select.findIndex(r => r === rowKey);
-          if (idx !== -1){
+          if(options[type].select.length>1 && (idx!=-1)){
+            // 多选
             options[type].select.splice(idx, 1);
-          }else {
-            options[type].select.push(rowKey);
+          }else if(options[type].select.length<2){
+            // 单选
+            options[type].select=[rowKey];
           }
+          // if (idx !== -1){
+          //   options[type].select.splice(idx, 1);
+          // }else {
+          //   options[type].select.push(rowKey);
+          // }
         }
       }
     },

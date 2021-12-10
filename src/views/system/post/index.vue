@@ -463,14 +463,16 @@ export default defineComponent({
     customRow: function (record, idx) {
       return {
         onClick: event => {
-          var selId = record[this.majorKey];
-          var selIdx = this.tableSelection.selectedRowKeys.indexOf(selId);
-          if(selIdx!=-1){
-            this.tableSelection.selectedRowKeys.splice(selIdx, 1);
-          }else{
-            this.tableSelection.selectedRowKeys.push(selId);
+          var selId = record[this.majorKey], selArr = this.tableSelection.selectedRowKeys;
+          var selIdx = selArr.indexOf(selId);
+          if(selArr.length>1 && (selIdx!=-1)){
+            // 多选
+            selArr.splice(selIdx, 1);
+          }else if(selArr.length<2){
+            // 单选
+            selArr = [selId];
           }
-          this.onSelectChange(this.tableSelection.selectedRowKeys);
+          this.onSelectChange(selArr);
         }
       }
     },
