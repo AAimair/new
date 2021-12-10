@@ -103,16 +103,18 @@
           </template>
           
           <template #action="{ record  }">
-            <a-button
-              type="link"
-              ghost
-              @click="rowHandle('detail', record)"
-            >
-              <template #icon>
-                <EyeOutlined/>
-              </template>
-              <span>详细</span>
-            </a-button>
+            <div @click.stop>
+              <a-button
+                type="link"
+                ghost
+                @click="rowHandle('detail', record)"
+              >
+                <template #icon>
+                  <EyeOutlined/>
+                </template>
+                <span>详细</span>
+              </a-button>
+            </div>
           </template>
         </a-table>
       </div>

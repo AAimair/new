@@ -109,26 +109,28 @@
           </template>
           
           <template #action="{ record  }">
-            <a-button
-              type="link"
-              ghost
-              @click.prevent="rowHandle('edit', record)"
-            >
-              <template #icon>
-                <EditOutlined/>
-              </template>
-              <span>修改</span>
-            </a-button>
-            <a-button
-              type="link"
-              ghost
-              @click.prevent="rowHandle('delete', record)"
-            >
-              <template #icon>
-                <DeleteOutlined/>
-              </template>
-              <span>删除</span>
-            </a-button>
+            <div @click.stop>
+              <a-button
+                type="link"
+                ghost
+                @click.prevent="rowHandle('edit', record)"
+              >
+                <template #icon>
+                  <EditOutlined/>
+                </template>
+                <span>修改</span>
+              </a-button>
+              <a-button
+                type="link"
+                ghost
+                @click.prevent="rowHandle('delete', record)"
+              >
+                <template #icon>
+                  <DeleteOutlined/>
+                </template>
+                <span>删除</span>
+              </a-button>
+            </div>
           </template>
         </a-table>
       </div>
