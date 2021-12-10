@@ -167,7 +167,7 @@
       <!-- 新增/修改弹窗 -->
       <a-modal
         v-model:visible="rowConfig.show"
-        :title="rowConfig.type == 'add' ? '添加岗位' : '编辑岗位'"
+        :title="rowConfig.type == 'add' ? '添加用户' : '编辑用户'"
         :width="800"
         class="userEditPopup"
         :closable="false"
