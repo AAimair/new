@@ -96,6 +96,15 @@
                 删除
               </a-button
               >
+              <a-button
+                  size="small"
+                  type="text"
+                  @click="itemOptions('preview', row)"
+              >
+                <BugOutlined />
+                预览
+              </a-button
+              >
             </div>
           </template>
         </a-table>
@@ -168,6 +177,13 @@
         </alpFormGroup>
       </div>
     </a-modal>
+    <!-- 测试流水号弹窗 -->
+    <a-modal v-model:visible="previewModelShow" title="流水号预览" >
+      <div v-html="previewModelData"></div>
+      <template #footer>
+        <a-button key="back" @click="previewModelShow = false">取消</a-button>
+      </template>
+    </a-modal>
   </div>
 </template>
 <script lang="ts">
@@ -230,7 +246,7 @@ export default defineComponent({
           title: "初始值",
         },
         {
-          width: 150,
+          width: 200,
           title: "操作",
           key: "options",
           slots: {customRender: "options"},
@@ -260,6 +276,8 @@ export default defineComponent({
         type: "edit", // add/edit
         data: [],
       },
+      previewModelShow:false,
+      previewModelData:"",
     };
   },
   mounted: function () {
@@ -324,6 +342,9 @@ export default defineComponent({
           //  删除
           return this.$axios
               .delete("/system/identity/" + data);
+        case "preview":
+          // 预览
+            return this.$axios.get("/system/identity/test/" + data);
       }
     },
 
@@ -407,9 +428,22 @@ export default defineComponent({
     // 项目操作
     itemOptions: function (type, item) {
       switch (type) {
+        case "preview":
+          this.previewModelData = "";
+          this.genInterface("preview", item['alias'])
+              .then((res) => {
+                if (res.data.code == 200) {
+                  this.previewModelShow = true;
+                  this.previewModelData = res.data.msg;
+                }
+              })
+              .catch((err) => {
+                this.$message
+                    .error("服务器异常");
+              });
+          break;
         case "edit":
           // 修改
-            console.log(item)
           for (var k in this.formTemplate) {
             this.tableRowFormData[k] = {
               value: item[k] || this.formTemplate[k]
