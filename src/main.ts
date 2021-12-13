@@ -55,6 +55,24 @@ app.config.globalProperties.$md5 = md5;
 
 (window as any).$_alp = app;
 
+// v-power 进行权限验证
+app.directive('power', {
+  mounted(el, binding, vnode) {
+    var userPermissions = (store as any)._state.data.userPermissions;
+    // 目标元素权限KEY
+    var targetPowerKey = binding.value;
+
+    if(userPermissions.indexOf('*:*:*')!=-1){
+      // 管理员
+    }else if(targetPowerKey){
+      // 需要验证权限
+      if(userPermissions.indexOf(targetPowerKey)==-1){
+        el.parentNode && el.parentNode.removeChild(el);
+      }
+    }
+  }
+});
+
 app.use(AlpUI);
 app.use(store);
 app.use(router)
