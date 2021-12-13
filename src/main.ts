@@ -37,7 +37,7 @@ app.config.globalProperties.$dict = function(dictKey){
       if(res.data.code == 200){
         resData = res.data.data.map(o => {
           return {
-            value: o.dictCode,
+            value: o.dictValue,
             label: o.dictLabel,
             ...o
           }
