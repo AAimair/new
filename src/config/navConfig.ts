@@ -23,6 +23,8 @@ const systemLogininfor = () => import("../views/system/logininfor/index.vue");
 const systemRolePage = () => import("../views/system/role/index.vue");
 // 用户管理
 const systemUserPage = () => import("../views/system/user/index.vue");
+// 用户组
+const systemUserGroup = () => import("../views/system/group/index.vue");
 // 菜单管理
 const systemMenuPage = () => import("../views/system/menu/index.vue");
 // 流水号管理
@@ -68,6 +70,7 @@ const componentMap = {
   swagger: toolSwagger,
   role: systemRolePage,
   user: systemUserPage,
+  userGroup:systemUserGroup,
   menu: systemMenuPage,
   subsys: systemSubsys,
   identity: systemIdentity,

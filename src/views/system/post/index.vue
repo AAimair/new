@@ -31,6 +31,7 @@
             size="small"
             @click="topSearch('edit')"
             :disabled="tableSelection.selectedRowKeys.length !== 1"
+            role="system:menu:query"
           >
             <template #icon><EditOutlined /></template>
             修改

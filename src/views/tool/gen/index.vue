@@ -768,8 +768,15 @@ export default defineComponent({
     },
 
     // 导入表格查询  
-    searchImport: function(){
+    searchImport: function(type){
       var form = this.$refs["importTableSearchForm"];
+      switch (type) {
+        case "search":
+          break;
+        case "reset":
+          form.resetValidation();
+          break;
+      }
       var data = form.getFormData().formData;
       this.getImportList(data);
     },
